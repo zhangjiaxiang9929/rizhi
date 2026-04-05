@@ -1,0 +1,2887 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <title>BTC 合约交易机器人 V1.0</title>
+  <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: -apple-system, "Microsoft YaHei", "Segoe UI", sans-serif;
+background: #0d1117;
+color: #c9d1d9;
+height: 100vh;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+}
+
+/* ── 顶部导航 ── */
+#topbar {
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: #161b22;
+padding: 0 16px;
+border-bottom: 1px solid #21262d;
+gap: 10px;
+flex-shrink: 0;
+height: 52px;
+-webkit-app-region: drag;
+}
+
+.logo {
+font-size: 15px;
+font-weight: 800;
+color: #f7931a;
+letter-spacing: 1px;
+white-space: nowrap;
+-webkit-app-region: no-drag;
+}
+
+#topbar-center {
+display: flex;
+align-items: center;
+gap: 14px;
+flex: 1;
+justify-content: center;
+-webkit-app-region: no-drag;
+}
+
+#price-display {
+font-size: 26px;
+font-weight: 800;
+color: #f7931a;
+transition: color .25s;
+letter-spacing: 1px;
+}
+
+#price-display span {
+font-size: 12px;
+color: #8b949e;
+margin-left: 3px;
+}
+
+#price-display.up { color: #3fb950; }
+#price-display.down { color: #f85149; }
+
+#conn-badge {
+font-size: 11px;
+font-weight: 700;
+padding: 3px 10px;
+border-radius: 20px;
+}
+
+.conn-ok { background: #122d1a; color: #3fb950; border: 1px solid #2ea04326; }
+.conn-err { background: #2d1216; color: #f85149; border: 1px solid #f8514926; }
+
+#topbar-right {
+display: flex;
+align-items: center;
+gap: 10px;
+-webkit-app-region: no-drag;
+}
+
+#runtime-display { font-size: 12px; color: #8b949e; white-space: nowrap; }
+
+#status-pill {
+padding: 3px 12px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: 700;
+white-space: nowrap;
+}
+
+.pill-stopped { background: #2d1216; color: #f85149; border: 1px solid #f8514926; }
+.pill-running { background: #122d1a; color: #3fb950; border: 1px solid #2ea04326; }
+.pill-dry { background: #0d2044; color: #58a6ff; border: 1px solid #1f6feb26; }
+
+/* ── 主体布局 ── */
+#app {
+display: flex;
+flex: 1;
+overflow: hidden;
+min-height: 0;
+}
+
+/* ── 左侧面板 ── */
+#left-panel {
+background: #161b22;
+border-right: 1px solid #21262d;
+overflow-y: auto;
+padding: 12px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+width: 282px;
+min-width: 282px;
+flex-shrink: 0;
+transition: width .25s, min-width .25s, padding .25s, border .25s;
+}
+
+#left-panel::-webkit-scrollbar { width: 3px; }
+#left-panel::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+#left-panel.collapsed {
+width: 0; min-width: 0; padding: 0; border: none; overflow: hidden;
+}
+
+#left-toggle {
+flex-shrink: 0;
+background: #161b22;
+border: 1px solid #21262d;
+border-left: none;
+border-radius: 0 6px 6px 0;
+padding: 10px 5px;
+cursor: pointer;
+color: #8b949e;
+font-size: 12px;
+align-self: center;
+user-select: none;
+transition: all 0.2s;
+}
+
+#left-toggle:hover { color: #f7931a; border-color: #f7931a44; }
+
+/* ── 右侧面板 ── */
+#right-panel {
+display: flex;
+flex-direction: column;
+overflow: hidden;
+min-width: 0;
+flex: 1;
+min-height: 0;
+}
+
+#bottom-area {
+display: flex;
+flex-direction: column;
+flex: 1;
+min-height: 150px;
+overflow: hidden;
+padding: 8px 14px 10px;
+gap: 6px;
+}
+
+/* ── 卡片 ── */
+.card {
+background: #161b22;
+border: 1px solid #21262d;
+border-radius: 10px;
+padding: 11px;
+flex-shrink: 0;
+}
+
+.card-title {
+font-size: 11px;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: #8b949e;
+margin-bottom: 9px;
+font-weight: 700;
+}
+
+/* ── 表单 ── */
+.form-row { margin-bottom: 8px; }
+.form-row label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 3px; }
+
+.form-row input,
+.form-row select {
+width: 100%;
+background: #0d1117;
+border: 1px solid #30363d;
+border-radius: 6px;
+padding: 7px 9px;
+color: #c9d1d9;
+font-size: 13px;
+outline: none;
+transition: border-color .2s;
+}
+
+.form-row input:focus,
+.form-row select:focus { border-color: #388bfd; }
+.form-row input[type=password] { letter-spacing: 2px; }
+
+/* ── 滑块 ── */
+.slider-row { margin-bottom: 8px; }
+.slider-row label {
+display: flex;
+justify-content: space-between;
+font-size: 12px;
+color: #8b949e;
+margin-bottom: 3px;
+}
+
+input[type=range] {
+width: 100%;
+accent-color: #f7931a;
+cursor: pointer;
+}
+
+/* ── 切换开关 ── */
+.toggle-row {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 8px;
+}
+.toggle-row span { font-size: 12px; color: #8b949e; }
+
+.toggle { position: relative; width: 40px; height: 22px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+position: absolute; cursor: pointer; inset: 0;
+background: #30363d; border-radius: 22px; transition: .3s;
+}
+.toggle-slider:before {
+content: ""; position: absolute;
+height: 16px; width: 16px; left: 3px; bottom: 3px;
+background: #8b949e; border-radius: 50%; transition: .3s;
+}
+.toggle input:checked + .toggle-slider { background: #196c2e; }
+.toggle input:checked + .toggle-slider:before {
+transform: translateX(18px); background: #3fb950;
+}
+
+/* ── 按钮 ── */
+#btn-start {
+width: 100%; padding: 10px; border-radius: 8px;
+border: none; font-size: 14px; font-weight: 700;
+cursor: pointer; transition: all .2s; margin-top: 3px;
+}
+#btn-start.start {
+background: linear-gradient(135deg, #f7931a, #e67e00);
+color: #fff;
+}
+#btn-start.start:hover { filter: brightness(1.1); transform: translateY(-1px); }
+#btn-start.stop { background: linear-gradient(135deg, #da3633, #f85149); color: #fff; }
+
+#btn-save, #btn-reset, #btn-load, #btn-clear-sim {
+width: 100%; padding: 7px; border-radius: 6px;
+background: transparent; font-size: 12px;
+cursor: pointer; margin-top: 5px; transition: all 0.2s;
+}
+#btn-save { border: 1px solid #30363d; color: #8b949e; }
+#btn-save:hover { border-color: #f7931a44; color: #f7931a; background: #f7931a0a; }
+#btn-load { border: 1px solid #30363d; color: #58a6ff; }
+#btn-load:hover { border-color: #388bfd44; background: #388bfd0a; }
+#btn-reset { border: 1px solid #30363d; color: #8b949e; }
+#btn-reset:hover { border-color: #58a6ff44; color: #58a6ff; }
+#btn-clear-sim { border: 1px solid #30363d; color: #f85149; }
+#btn-clear-sim:hover { border-color: #f8514944; background: #f851490a; }
+
+/* ── 滑块内联 ── */
+.slider-inline { display: flex; align-items: center; gap: 6px; }
+.slider-inline input[type=range] { flex: 1; }
+.slider-numbox {
+width: 52px; background: #0d1117; border: 1px solid #30363d;
+border-radius: 6px; padding: 4px 5px; color: #f7931a;
+font-size: 13px; font-weight: 700; outline: none; text-align: center;
+transition: border-color 0.2s;
+}
+.slider-numbox:focus { border-color: #f7931a; }
+.slider-unit { color: #8b949e; font-size: 12px; min-width: 14px; }
+
+/* ── 统计栏 ── */
+#stats-bar {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 8px;
+padding: 10px 14px;
+background: #161b22;
+border-bottom: 1px solid #21262d;
+flex-shrink: 0;
+transition: background 0.4s;
+}
+#stats-bar.has-pos-long { background: linear-gradient(90deg, #0d2e1a 0%, #161b22 40%); border-bottom-color: #3fb950; }
+#stats-bar.has-pos-short { background: linear-gradient(90deg, #2e0d0d 0%, #161b22 40%); border-bottom-color: #fc8181; }
+
+.stat-card {
+background: #0d1117;
+border: 1px solid #21262d;
+border-radius: 8px;
+padding: 8px 10px;
+transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: #30363d; }
+/* 持仓时本次盈亏卡片放大高亮 */
+.stat-card.pnl-highlight { border-color: #f7931a; background: #1a1500; }
+.stat-card.pnl-highlight .svalue { font-size: 20px; }
+
+.stat-card .slabel { font-size: 10px; color: #8b949e; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-card .svalue { font-size: 16px; font-weight: 700; line-height: 1.2; }
+
+.val-neutral { color: #c9d1d9; }
+.val-green { color: #3fb950; }
+.val-red { color: #f85149; }
+.val-orange { color: #f7931a; }
+.val-blue { color: #58a6ff; }
+
+/* ── 信号栏 ── */
+#signal-row {
+display: flex; align-items: center; gap: 8px;
+padding: 7px 14px;
+background: #161b22;
+border-bottom: 1px solid #21262d;
+flex-shrink: 0; flex-wrap: wrap;
+}
+
+.sig-badge {
+padding: 3px 12px; border-radius: 20px;
+font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.sig-hold { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
+.sig-long { background: #122d1a; color: #3fb950; border: 1px solid #2ea04326; }
+.sig-short { background: #2d1216; color: #f85149; border: 1px solid #f8514926; }
+
+.mtf-badge { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+.mtf-ok { background: #122d1a; color: #3fb950; border: 1px solid #2ea04326; }
+.mtf-warn { background: #2d2010; color: #d29922; border: 1px solid #d2992226; }
+
+.cool-badge {
+font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 20px;
+white-space: nowrap; background: #21262d; color: #8b949e; border: 1px solid #30363d;
+}
+
+#score-bar-wrap { display: flex; align-items: center; gap: 6px; }
+#score-bar-bg { width: 70px; height: 6px; background: #21262d; border-radius: 3px; overflow: hidden; }
+#score-bar-fg { height: 100%; border-radius: 3px; transition: width .4s, background .4s; }
+#score-val { font-size: 12px; font-weight: 700; color: #f7931a; min-width: 26px; }
+#sig-detail { font-size: 12px; color: #8b949e; flex: 1; }
+#last-scan-time { font-size: 11px; color: #30363d; white-space: nowrap; }
+
+/* ── K线图区域 ── */
+#chart-wrap {
+background: #0d1117;
+border-bottom: 1px solid #21262d;
+flex-shrink: 0;
+padding: 6px 14px 8px;
+min-height: 300px;
+width: 100%;
+box-sizing: border-box;
+}
+
+#price-chart, #rsi-chart {
+display: block;
+width: 100% !important;
+box-sizing: border-box;
+}
+
+#chart-toolbar {
+display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+#chart-toolbar span {
+font-size: 11px; color: #8b949e; font-weight: 700;
+text-transform: uppercase; letter-spacing: 1px; margin-right: 4px;
+}
+
+.tf-btn {
+background: transparent; border: 1px solid #30363d;
+color: #8b949e; padding: 3px 10px; border-radius: 20px;
+font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.tf-btn:hover { border-color: #8b949e; color: #c9d1d9; }
+.tf-btn.active {
+background: #f7931a22; border-color: #f7931a;
+color: #f7931a; font-weight: 700;
+}
+
+#chart-loading { font-size: 11px; color: #8b949e; margin-left: 6px; display: none; }
+#price-chart { width: 100%; height: 220px; display: block; cursor: crosshair; }
+#rsi-chart { width: 100%; height: 60px; display: block; cursor: crosshair; margin-top: 2px; }
+
+#chart-tooltip {
+position: fixed; background: #161b22; border: 1px solid #21262d;
+border-radius: 6px; padding: 6px 10px; font-size: 11px; color: #c9d1d9;
+pointer-events: none; display: none; z-index: 100; white-space: nowrap;
+box-shadow: 0 4px 12px #00000044;
+}
+
+/* ── 持仓卡片 ── */
+#position-card {
+display: none;
+background: #0d1117;
+border-top: 2px solid #1f6feb;
+border-bottom: 1px solid #21262d;
+padding: 9px 14px;
+flex-shrink: 0;
+}
+
+.pos-header {
+display: flex; align-items: center; gap: 8px;
+margin-bottom: 7px; font-size: 13px; font-weight: 600;
+}
+
+.pos-dir {
+padding: 3px 10px; border-radius: 20px;
+font-size: 11px; font-weight: 700;
+}
+.dir-long { background: #122d1a; color: #3fb950; border: 1px solid #2ea04326; }
+.dir-short { background: #2d1216; color: #f85149; border: 1px solid #f8514926; }
+
+#pos-duration { margin-left: auto; font-size: 11px; color: #8b949e; }
+
+#trail-active {
+font-size: 11px; color: #d29922; background: #2d2010;
+border: 1px solid #d2992226; border-radius: 20px; padding: 2px 8px;
+}
+
+#breakeven-badge {
+font-size: 11px; color: #3fb950; background: #122d1a;
+border: 1px solid #2ea04326; border-radius: 20px; padding: 2px 8px; display: none;
+}
+
+.pos-details {
+display: grid; grid-template-columns: repeat(5, 1fr);
+gap: 6px; margin-bottom: 8px;
+}
+.pi-label { font-size: 10px; color: #8b949e; margin-bottom: 2px; text-transform: uppercase; }
+.pi-value { font-size: 14px; font-weight: 700; }
+
+/* ── 手动控制面板 ── */
+#manual-panel {
+display: none; border-top: 1px solid #1f6feb33;
+padding-top: 8px; margin-top: 2px;
+}
+
+.mp-title {
+font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+color: #8b949e; font-weight: 700; margin-bottom: 6px;
+}
+
+.btn-group-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 7px; }
+
+.mp-btn {
+padding: 6px 4px; border-radius: 6px; border: none;
+font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s;
+}
+.mp-btn:hover { transform: translateY(-1px); opacity: .85; }
+.btn-red { background: #2d1216; color: #f85149; border: 1px solid #f8514944; }
+.btn-yellow { background: #2d2010; color: #d29922; border: 1px solid #d2992244; }
+
+.mp-input-row {
+display: flex; gap: 6px; align-items: center; margin-bottom: 4px;
+}
+.mp-input-row label { font-size: 11px; color: #8b949e; width: 44px; flex-shrink: 0; }
+.mp-input-row input {
+flex: 1; background: #0d1117; border: 1px solid #30363d;
+border-radius: 6px; padding: 5px 8px; color: #c9d1d9;
+font-size: 12px; outline: none; transition: border-color 0.2s;
+}
+.mp-input-row input:focus { border-color: #388bfd; }
+.mp-input-row button {
+padding: 5px 12px; border-radius: 6px; border: none;
+font-size: 12px; font-weight: 700; cursor: pointer;
+}
+/* ── 底部标签栏 ── */
+.tab-bar {
+display: flex; gap: 4px;
+border-bottom: 1px solid #21262d;
+padding-bottom: 6px; flex-shrink: 0;
+}
+
+.tab-btn {
+padding: 5px 16px; border-radius: 6px 6px 0 0;
+border: 1px solid transparent;
+background: transparent; color: #8b949e;
+font-size: 12px; font-weight: 600; cursor: pointer;
+transition: all 0.2s;
+}
+.tab-btn:hover { color: #c9d1d9; background: #21262d; }
+.tab-btn.active {
+background: #161b22; border-color: #21262d;
+border-bottom-color: #161b22; color: #f0f6fc;
+}
+
+.tab-content { display: none; flex: 1; overflow: hidden; flex-direction: column; gap: 6px; min-height: 0; }
+.tab-content.active { display: flex; }
+
+/* ── 日志工具栏 ── */
+.log-toolbar {
+display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.log-toolbar span {
+font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+color: #8b949e; font-weight: 700; margin-right: auto;
+}
+
+.filter-btn {
+background: transparent; border: 1px solid #30363d;
+color: #8b949e; padding: 3px 10px; border-radius: 20px;
+font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.filter-btn:hover { border-color: #8b949e; color: #c9d1d9; }
+.filter-btn.active { border-color: #f7931a; color: #f7931a; background: #f7931a0a; }
+
+.small-btn {
+background: transparent; border: 1px solid #30363d;
+color: #8b949e; padding: 3px 10px; border-radius: 20px;
+font-size: 11px; cursor: pointer; transition: all 0.2s;
+}
+.small-btn:hover { border-color: #8b949e; color: #c9d1d9; }
+
+/* ── 日志框 ── */
+#log-box {
+flex: 1; overflow-y: auto;
+background: #0d1117; border: 1px solid #21262d;
+border-radius: 8px; padding: 9px 12px;
+font-family: "Consolas", "Courier New", monospace;
+font-size: 12px; line-height: 2; min-height: 0;
+}
+#log-box::-webkit-scrollbar { width: 3px; }
+#log-box::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+.log-info { color: #8b949e; }
+.log-scan { color: #58a6ff; }
+.log-open { color: #d29922; font-weight: 600; }
+.log-win { color: #3fb950; font-weight: 600; }
+.log-loss { color: #f85149; }
+.log-warn { color: #f0883e; }
+.log-error { color: #f85149; font-weight: 700; }
+.log-hidden { display: none !important; }
+
+/* ── 交易记录统计卡 ── */
+#hist-top { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+#hist-summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; flex: 1; }
+
+.hs-card {
+background: #0d1117; border: 1px solid #21262d;
+border-radius: 8px; padding: 7px 10px;
+transition: border-color 0.2s;
+}
+.hs-card:hover { border-color: #30363d; }
+.hs-label { font-size: 10px; color: #8b949e; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.hs-val { font-size: 15px; font-weight: 700; }
+
+.hist-btn-group { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+
+/* ── 盈亏曲线 ── */
+#pnl-chart-wrap {
+flex-shrink: 0; background: #0d1117;
+border: 1px solid #21262d; border-radius: 8px; padding: 7px 12px;
+}
+#pnl-chart-label { font-size: 10px; color: #8b949e; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 1px; }
+#pnl-chart { width: 100%; height: 46px; display: block; }
+
+/* ── 交易记录表 ── */
+#hist-table-wrap {
+flex: 1; overflow-y: auto;
+background: #0d1117; border: 1px solid #21262d;
+border-radius: 8px; min-height: 0;
+}
+#hist-table-wrap::-webkit-scrollbar { width: 3px; }
+#hist-table-wrap::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+#hist-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+#hist-table thead th {
+position: sticky; top: 0;
+background: #161b22; color: #8b949e;
+font-size: 10px; text-transform: uppercase;
+letter-spacing: 1px; padding: 7px 9px;
+text-align: left; border-bottom: 1px solid #21262d;
+font-weight: 700;
+}
+#hist-table tbody tr:hover { background: #21262d44; }
+#hist-table td { padding: 6px 9px; border-bottom: 1px solid #21262d33; }
+
+.td-long { color: #3fb950; font-weight: 700; }
+.td-short { color: #f85149; font-weight: 700; }
+.td-win { color: #3fb950; font-weight: 700; }
+.td-loss { color: #f85149; }
+.td-open { color: #d29922; }
+
+/* ── 数学预期 ── */
+#math-info { font-size: 12px; color: #8b949e; line-height: 2; white-space: pre-wrap; }
+
+/* ── 趋势模式按钮 ── */
+.mode-btn { transition: all 0.2s; border-radius: 6px !important; }
+.mode-btn:hover:not(.active) {
+background: #21262d !important;
+color: #c9d1d9 !important;
+border-color: #30363d !important;
+}
+.mode-btn.active { box-shadow: 0 2px 8px rgba(247,147,26,0.25); }
+
+/* ── AI对话区 ── */
+#ai-chat-box {
+flex: 1; overflow-y: auto;
+background: #0d1117; border: 1px solid #21262d;
+border-radius: 8px; padding: 12px;
+display: flex; flex-direction: column; gap: 10px; min-height: 0;
+}
+#ai-chat-box::-webkit-scrollbar { width: 3px; }
+#ai-chat-box::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+#ai-input {
+flex: 1; background: #0d1117; border: 1px solid #30363d;
+border-radius: 6px; padding: 8px 12px; color: #c9d1d9;
+font-size: 13px; outline: none;
+pointer-events: auto; position: relative; z-index: 999;
+transition: border-color 0.2s;
+}
+#ai-input:focus { border-color: #f7931a; }
+
+#ai-send-btn {
+padding: 8px 18px;
+background: linear-gradient(135deg, #f7931a, #e67e00);
+border: none; border-radius: 6px; color: #fff;
+font-size: 13px; font-weight: 700; cursor: pointer;
+transition: opacity 0.2s;
+}
+#ai-send-btn:hover { opacity: 0.85; }
+#ai-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── 进度条区域 ── */
+#pos-progress-wrap {
+display: none; padding: 2px 0;
+position: relative;
+}
+
+#pos-progress-bar {
+height: 100%;
+transition: width .5s, background .5s;
+}
+
+#progress-cursor {
+position: absolute; top: 0;
+transform: translateX(-50%);
+transition: left .5s;
+left: 50%;
+display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+
+/* ── 滚动条全局 ── */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #30363d; border-radius: 2px; }
+
+/* ── 动画 ── */
+@keyframes blink {
+0%, 100% { opacity: 0.2; }
+50% { opacity: 1; }
+}
+
+/* ── Select下拉 ── */
+select {
+background: #0d1117;
+border: 1px solid #30363d;
+border-radius: 6px;
+color: #c9d1d9;
+padding: 6px 8px;
+font-size: 13px;
+outline: none;
+cursor: pointer;
+transition: border-color 0.2s;
+}
+select:focus { border-color: #388bfd; }
+select option { background: #161b22; color: #c9d1d9; }
+
+/* ── Checkbox ── */
+input[type=checkbox] {
+accent-color: #f7931a;
+cursor: pointer;
+width: 14px; height: 14px;
+}
+
+/* ── AI状态点 ── */
+#ai-status-dot {
+display: inline-flex; align-items: center; gap: 4px;
+font-size: 11px; color: #8b949e; margin-left: 10px;
+}
+#ai-dot {
+width: 8px; height: 8px; border-radius: 50%;
+background: #30363d; display: inline-block;
+transition: all 0.3s;
+}
+</style>
+</head>
+
+<body>
+  <div id="chart-tooltip"></div>
+  <div id="topbar">
+    <div class="logo">🤖                          实时价格</div>
+    <div id="topbar-center">
+      <div id="price-display">-- <span>USDT</span></div>
+      <span id="ai-status-dot" title="AI状态" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#718096;margin-left:10px;">
+  <span id="ai-dot" style="width:8px;height:8px;border-radius:50%;background:#4a5568;display:inline-block;"></span>
+  <span id="ai-dot-text">AI未连接</span>
+</span>
+      <div id="conn-badge" class="conn-ok">● Gate.io 已连接</div>
+    </div>
+    <div id="topbar-right">
+      <div id="runtime-display" style="display:none;font-size:13px;color:#a0aec0;">⏱ <span id="runtime-val">00:00:00</span></div>
+      <div id="status-pill" class="status-pill pill-stopped">● 未运行</div>
+<span style="font-size:13px;color:#a0aec0;margin-left:10px;">⏱ <span id="s-next">--</span></span>
+</div>
+</div>
+  </div>
+
+  <div id="app">
+    <div id="left-panel">
+      <div class="card">
+        <div class="card-title">🔑 API 配置</div>
+        <div class="form-row"><label>API Key</label><input type="text" id="apiKey" placeholder="粘贴你的 API Key"></div>
+        <div class="form-row"><label>API Secret</label><input type="text" id="apiSecret" placeholder="粘贴你的 API Secret">
+        </div>
+         <!-- ★ 新增：货币设置 -->
+        <div class="form-row" style="margin-top:10px;">
+        <label>显示货币</label>
+        <div style="margin-top:5px;">
+        <select id="currencyMode" onchange="updateCurrency()" style="width:100%;background:#0f1117;border:1px solid #2d3748;color:#e2e8f0;padding:6px 8px;border-radius:5px;font-size:13px;">
+        <option value="USDT">USDT (U)</option>
+        <option value="CNY">人民币 (¥)</option>
+        </select>
+        </div>
+        <span style="font-size:10px;color:#4a5568;margin-top:3px;display:block;">切换后自动按实时汇率转换</span>
+        </div>
+        <div class="slider-row" style="margin-top: 5px;">
+          <label style="font-size: 12px; color: #718096; cursor: pointer;">
+            <input type="checkbox" id="rememberApi" checked style="margin-right: 6px;">
+            记住 API（本地保存，下次自动填充）
+          </label>
+        </div>
+        <div class="toggle-row">
+          <span>模拟模式</span>
+          <label class="toggle"><input type="checkbox" id="dryRun" checked onchange="onDryRunToggle()"><span
+              class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+        <span>🤖 AI主导模式 <span style="font-size:10px;color:#4a5568;">（AI主动分析开平仓）</span></span>
+        <label class="toggle"><input type="checkbox" id="aiDriven" onchange="onAiDrivenToggle()"><span class="toggle-slider"></span></label>
+        </div>
+        <div id="ai-driven-hint" style="display:none;font-size:11px;color:#f6ad55;margin-bottom:6px;padding:4px 6px;background:#2d2515;border-radius:4px;border:1px solid #744210;">
+        ⚠️ AI将主动分析并控制开平仓，策略信号仅作参考
+        </div>
+       </div>
+      <div class="card">
+  <div class="card-title" onclick="toggleAdvanced()" style="cursor:pointer;user-select:none;">
+    ⚙️ 交易参数 <span id="advanced-arrow" style="float:right;color:#f7931a;">▼ 高级</span>
+  </div>
+
+  <!-- 常用参数（始终显示） -->
+<div class="form-row">
+<label>账户资金 (USDT)</label>
+<input type="number" id="capital" value="10000" min="50" oninput="updateMath()">
+</div>
+<div class="slider-row"><label>止盈 <span style="color:#718096;font-size:11px">0.5~20%</span></label>
+<div class="slider-inline"><input type="range" id="takePct" min="0.5" max="20" step="0.1" value="1.5" oninput="syncInput('takePct','takePctNum');updateMath();applyConfigLive()"><input type="number" id="takePctNum" value="1.5" min="0.5" max="20" step="0.1" class="slider-numbox" oninput="syncRange('takePctNum','takePct');updateMath();applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>止损 <span style="color:#718096;font-size:11px">0.5~10%</span></label>
+<div class="slider-inline"><input type="range" id="stopPct" min="0.5" max="10" step="0.1" value="0.8" oninput="syncInput('stopPct','stopPctNum');updateMath();applyConfigLive()"><input type="number" id="stopPctNum" value="0.8" min="0.5" max="10" step="0.1" class="slider-numbox" oninput="syncRange('stopPctNum','stopPct');updateMath();applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>杠杆 <span style="color:#718096;font-size:11px">1~20x</span></label>
+<div class="slider-inline"><input type="range" id="leverage" min="1" max="20" step="1" value="5" oninput="syncInput('leverage','leverageNum');updateMath();applyConfigLive()"><input type="number" id="leverageNum" value="5" min="1" max="20" step="1" class="slider-numbox" oninput="syncRange('leverageNum','leverage');updateMath();applyConfigLive()"><span class="slider-unit">x</span></div>
+</div>
+<div class="slider-row"><label>仓位比例 <span style="color:#718096;font-size:11px">1~100%</span></label>
+<div class="slider-inline"><input type="range" id="posRatio" min="1" max="100" step="1" value="20" oninput="syncInput('posRatio','posRatioNum');updateMath();applyConfigLive()"><input type="number" id="posRatioNum" value="20" min="1" max="100" step="1" class="slider-numbox" oninput="syncRange('posRatioNum','posRatio');updateMath();applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>风控熔断 <span style="color:#718096;font-size:11px">5~50%</span></label>
+<div class="slider-inline"><input type="range" id="maxLoss" min="5" max="50" step="1" value="15" oninput="syncInput('maxLoss','maxLossNum');applyConfigLive()"><input type="number" id="maxLossNum" value="15" min="5" max="50" step="1" class="slider-numbox" oninput="syncRange('maxLossNum','maxLoss');applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>每日止盈限制 <span style="color:#718096;font-size:11px">0=关闭</span></label>
+<div class="slider-inline"><input type="range" id="dailyTpPct" min="0" max="20" step="0.5" value="1.5" oninput="syncInput('dailyTpPct','dailyTpPctNum');applyConfigLive()"><input type="number" id="dailyTpPctNum" value="1.5" min="0" max="20" step="0.5" class="slider-numbox" oninput="syncRange('dailyTpPctNum','dailyTpPct');applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>每日止损限制 <span style="color:#718096;font-size:11px">0=关闭</span></label>
+<div class="slider-inline"><input type="range" id="dailySlPct" min="0" max="20" step="0.5" value="1" oninput="syncInput('dailySlPct','dailySlPctNum');applyConfigLive()"><input type="number" id="dailySlPctNum" value="1" min="0" max="20" step="0.5" class="slider-numbox" oninput="syncRange('dailySlPctNum','dailySlPct');applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+
+<!-- 高级参数（默认折叠） -->
+<div id="advanced-params" style="display:none;">
+<div style="border-top:1px solid #2d3748;margin:8px 0;padding-top:8px;">
+<div style="font-size:11px;color:#718096;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">高级参数</div>
+</div>
+<div class="slider-row"><label>ATR倍数 <span style="color:#718096;font-size:11px">1~4x</span></label>
+<div class="slider-inline"><input type="range" id="atrMult" min="1" max="4" step="0.5" value="2" oninput="syncInput('atrMult','atrMultNum');applyConfigLive()"><input type="number" id="atrMultNum" value="2" min="1" max="4" step="0.5" class="slider-numbox" oninput="syncRange('atrMultNum','atrMult');applyConfigLive()"><span class="slider-unit">x</span></div>
+</div>
+<div class="slider-row"><label>第一止盈% <span style="color:#718096;font-size:11px">1~10%</span></label>
+<div class="slider-inline"><input type="range" id="tp1Pct" min="1" max="10" step="1" value="5" oninput="syncInput('tp1Pct','tp1PctNum');applyConfigLive()"><input type="number" id="tp1PctNum" value="5" min="1" max="10" step="1" class="slider-numbox" oninput="syncRange('tp1PctNum','tp1Pct');applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>第二止盈% <span style="color:#718096;font-size:11px">3~20%</span></label>
+<div class="slider-inline"><input type="range" id="tp2Pct" min="3" max="20" step="1" value="10" oninput="syncInput('tp2Pct','tp2PctNum');applyConfigLive()"><input type="number" id="tp2PctNum" value="10" min="3" max="20" step="1" class="slider-numbox" oninput="syncRange('tp2PctNum','tp2Pct');applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>移动止损 <span style="color:#718096;font-size:11px">0.5~3%</span></label>
+<div class="slider-inline"><input type="range" id="trailPct" min="0.5" max="3" step="0.1" value="1" oninput="syncInput('trailPct','trailPctNum');applyConfigLive()"><input type="number" id="trailPctNum" value="1" min="0.5" max="3" step="0.1" class="slider-numbox" oninput="syncRange('trailPctNum','trailPct');applyConfigLive()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>成交量倍数 <span style="color:#718096;font-size:11px">0.5~2.0x</span></label>
+<div class="slider-inline"><input type="range" id="volMult" min="0.5" max="2.0" step="0.1" value="1.2" oninput="syncInput('volMult','volMultNum');updateMath();applyConfigLive()"><input type="number" id="volMultNum" value="1.2" min="0.5" max="2.0" step="0.1" class="slider-numbox" oninput="syncRange('volMultNum','volMult');updateMath();applyConfigLive()"><span class="slider-unit">x</span></div>
+</div>
+</div>
+</div>
+      <div class="slider-row">
+        <label>趋势模式 <span style="color:#718096;font-size:11px">保守/激进/自适应</span></label>
+        <div class="mode-select" style="display:flex;gap:8px;margin-top:6px;">
+          <button id="mode-1h" class="mode-btn active" onclick="setTrendMode('1h')"
+            style="flex:1;padding:8px 4px;border:1px solid #f7931a;background:#f7931a;color:#0f1117;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;">1h保守</button>
+          <button id="mode-30m" class="mode-btn" onclick="setTrendMode('30m')"
+            style="flex:1;padding:8px 4px;border:1px solid #2d3748;background:#1a202c;color:#718096;border-radius:6px;cursor:pointer;font-size:12px;">30m激进</button>
+          <button id="mode-auto" class="mode-btn" onclick="setTrendMode('auto')"
+            style="flex:1;padding:8px 4px;border:1px solid #2d3748;background:#1a202c;color:#718096;border-radius:6px;cursor:pointer;font-size:12px;">自适应</button>
+        </div>
+      </div>
+      <div class="card">
+       <button id="btn-start" class="start" onclick="toggleBot()">▶ 启动机器人</button>
+       <button id="btn-save" onclick="saveConfigDialog()" style="width:100%;padding:6px;border-radius:5px;border:1px solid #2d3748;background:transparent;color:#a0aec0;font-size:12px;cursor:pointer;margin-top:5px;">💾 保存配置...</button>
+       <button id="btn-load" onclick="loadConfigDialog()" style="width:100%;padding:6px;border-radius:5px;border:1px solid #2d3748;background:transparent;color:#63b3ed;font-size:12px;cursor:pointer;margin-top:5px;">📂 加载配置...</button>
+       <button id="btn-reset" onclick="resetDefaults()" style="width:100%;padding:6px;border-radius:5px;border:1px solid #2d3748;background:transparent;color:#718096;font-size:12px;cursor:pointer;margin-top:5px;">↺ 恢复默认</button>
+       <button id="btn-clear-sim" onclick="clearSimData()" style="width:100%;padding:6px;border-radius:5px;border:1px solid #2d3748;background:transparent;color:#fc8181;font-size:12px;cursor:pointer;margin-top:5px;">🗑️ 清除模拟数据</button>
+       </div>
+      <div class="card">
+        <div class="card-title">📐 数学预期</div>
+        <div id="math-info"></div>
+      </div>
+    </div>
+
+    <div id="left-toggle" onclick="toggleLeft()">◀</div>
+
+    <div id="right-panel">
+      <div id="stats-bar">
+<div class="stat-card">
+<div class="slabel">账户资金</div>
+<div class="svalue val-orange" id="s-balance">--</div>
+</div>
+<div class="stat-card">
+<div class="slabel">可用余额</div>
+<div class="svalue val-neutral" id="s-avail">--</div>
+</div>
+<div class="stat-card">
+<div class="slabel">开仓金额</div>
+<div class="svalue val-blue" id="s-margin">--</div>
+</div>
+<div class="stat-card" id="pnl-card">
+<div class="slabel">本次盈亏</div>
+<div class="svalue val-neutral" id="s-pnl">--</div>
+</div>
+<div class="stat-card">
+<div class="slabel">累计盈亏</div>
+<div class="svalue val-neutral" id="s-total-pnl">--</div>
+</div>
+</div>
+
+      <div id="signal-row">
+        <span id="sig-badge" class="sig-badge sig-hold">⏸ 观望</span>
+        <span id="market-mode-badge" style="display:none;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:700;border:1px solid rgba(255,255,255,0.08);">📈 趋势模式</span>
+        <span id="mtf-badge" class="mtf-badge mtf-warn" style="display:none"></span>
+        <span id="cool-badge" class="cool-badge" style="display:none">⏸ 冷却中</span>
+        <span id="funding-badge" style="display:none;font-size:11px;padding:2px 8px;border-radius:4px;background:#1a1d2e;border:1px solid #2d3748;color:#a0aec0;">💰 费率--</span>
+        <span id="orderbook-badge" style="display:none;font-size:11px;padding:2px 8px;border-radius:4px;background:#1a1d2e;border:1px solid #2d3748;color:#a0aec0;">📖 买方--%</span>
+        <span id="ls-badge" style="display:none;font-size:11px;padding:2px 8px;border-radius:4px;background:#1a1d2e;border:1px solid #2d3748;color:#a0aec0;">👥 多--%</span>
+        <span id="oi-badge" style="display:none;font-size:11px;padding:2px 8px;border-radius:4px;background:#1a1d2e;border:1px solid #2d3748;color:#a0aec0;">📊 OI--%</span>
+        <div id="score-bar-wrap" style="display:none">
+          <span style="font-size:11px;color:#718096">评分</span>
+          <div id="score-bar-bg">
+            <div id="score-bar-fg" style="width:0%"></div>
+          </div>
+          <span id="score-val">0</span>
+        </div>
+        <span id="sig-detail">等待首次扫描...</span>
+        <span id="last-scan-time"></span>
+      </div>
+
+      <!-- ✅ AI决策状态条 -->
+      <div id="ai-decision-bar" style="display:none;padding:5px 14px;background:#0d1117;border-bottom:1px solid #21262d;font-size:12px;display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span id="ai-decision-icon">🤖</span>
+        <span id="ai-decision-text" style="color:#a0aec0;">等待AI决策...</span>
+        <span id="ai-decision-conf" style="margin-left:auto;font-size:11px;color:#718096;"></span>
+        <span id="ai-decision-time" style="font-size:10px;color:#4a5568;"></span>
+      </div>
+
+      <div id="chart-wrap">
+        <div id="chart-toolbar">
+          <span>K线</span>
+          <button class="tf-btn active" onclick="switchTF('1m',this)">1分</button>
+          <button class="tf-btn" onclick="switchTF('5m',this)">5分</button>
+          <button class="tf-btn" onclick="switchTF('15m',this)">15分</button>
+          <button class="tf-btn" onclick="switchTF('1h',this)">1小时</button>
+          <button class="tf-btn" onclick="switchTF('1d',this)">日线</button>
+          <span id="chart-loading">加载中...</span>
+          <span style="margin-left:auto;font-size:10px;color:#4a5568">滚轮缩放 · 拖拽平移</span>
+        </div>
+        <canvas id="price-chart" style="width:100%;height:220px;display:block;cursor:crosshair;"></canvas>
+        <canvas id="rsi-chart" style="width:100%;height:60px;display:block;cursor:crosshair;margin-top:2px;"></canvas>
+      </div>
+
+<div id="position-card" style="display:none;background:#111827;border-bottom:1px solid #2d3748;flex-shrink:0;border-left:4px solid #38a169;">
+
+<!-- 第一行：方向标签 + 标记 + 持仓时长 -->
+<div style="display:flex;align-items:center;gap:8px;padding:3px 14px 0;">
+<span id="pos-dir-badge" class="pos-dir">--</span>
+<span id="trail-active" style="display:none;font-size:10px;color:#fbd38d;background:#2d2515;border:1px solid #74421066;border-radius:20px;padding:1px 8px;">⚡ 移动止损</span>
+<span id="breakeven-badge" style="display:none;font-size:10px;color:#68d391;background:#1a2d1a;border:1px solid #38a16966;border-radius:20px;padding:1px 8px;">🔒 保本</span>
+<span id="pos-duration" style="margin-left:auto;font-size:11px;color:#718096;">--</span>
+</div>
+
+<!-- 全宽进度条区域 -->
+<div id="pos-progress-wrap" style="display:none;padding:2px 0 2px;position:relative;">
+
+<!-- 三个价格标签行 -->
+<div style="display:flex;justify-content:space-between;align-items:flex-end;padding:0 14px;margin-bottom:4px;">
+<!-- 左侧 -->
+<div style="text-align:left;">
+<div id="progress-left-label" style="font-size:10px;color:#fc8181;margin-bottom:2px;">▼ 止盈价</div>
+<div id="progress-left-price" style="font-size:16px;font-weight:700;color:#fc8181;">--</div>
+</div>
+<!-- 中间开仓价 -->
+<div style="text-align:center;">
+<div style="font-size:10px;color:#718096;margin-bottom:2px;">开仓价</div>
+<div id="progress-entry-price" style="font-size:16px;font-weight:700;color:#63b3ed;">--</div>
+</div>
+<!-- 右侧 -->
+<div style="text-align:right;">
+<div id="progress-right-label" style="font-size:10px;color:#fc8181;margin-bottom:2px;text-align:right;">▲ 止损价</div>
+<div id="progress-right-price" style="font-size:16px;font-weight:700;color:#fc8181;">--</div>
+</div>
+</div>
+
+<!-- 进度条（全宽无padding） -->
+<div style="height:8px;background:#2d3748;position:relative;overflow:visible;">
+<div id="pos-progress-bar" style="height:100%;transition:width .5s,background .5s;"></div>
+</div>
+
+<!-- 三角指示器 + 当前价 + 盈亏 -->
+<div style="position:relative;height:52px;">
+<div id="progress-cursor" style="position:absolute;top:0;transform:translateX(-50%);transition:left .5s;left:50%;display:flex;flex-direction:column;align-items:center;gap:1px;">
+<!-- 三角 -->
+<div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:9px solid #ffffff;"></div>
+<!-- 当前价 -->
+<div id="progress-cur-price" style="font-size:12px;font-weight:700;color:#ffffff;white-space:nowrap;background:#111827;padding:0 4px;">--</div>
+<!-- 盈亏 -->
+<div id="progress-cur-pnl" style="font-size:11px;font-weight:600;color:#68d391;white-space:nowrap;background:#111827;padding:0 4px;">--</div>
+</div>
+</div>
+
+<!-- 底部方向标签 -->
+<div style="display:flex;justify-content:space-between;padding:0 14px;">
+<div id="progress-bar-left-label" style="font-size:10px;color:#718096;">◀ 止盈方向</div>
+<div id="progress-bar-right-label" style="font-size:10px;color:#718096;">止损方向 ▶</div>
+</div>
+
+</div>
+
+<!-- 张数 + 手动控制 -->
+<div style="display:flex;align-items:center;gap:8px;padding:2px 14px 4px;">
+<span style="font-size:11px;color:#718096;">持仓张数</span>
+<span id="pos-contracts" style="font-size:13px;font-weight:700;color:#63b3ed;">--</span>
+<span style="font-size:11px;color:#718096;margin-left:8px;">名义</span>
+<span id="pos-notional" style="font-size:13px;font-weight:700;color:#a0aec0;">--</span>
+</div>
+
+<!-- 手动控制 -->
+<div id="manual-panel" style="display:none;border-top:1px solid #2d4a6e;padding:6px 14px;">
+<div style="cursor:pointer;" onclick="toggleManual()">
+<span style="font-size:11px;color:#718096;text-transform:uppercase;letter-spacing:1px;user-select:none;">🎮 手动控制 <span id="manual-arrow">▼</span></span>
+</div>
+<div id="manual-content" style="display:none;margin-top:6px;">
+<div style="display:flex;gap:6px;margin-bottom:6px;">
+<button class="mp-btn btn-red" onclick="manualClose(1)" style="flex:1;padding:5px;">⚡ 全平</button>
+<button class="mp-btn btn-yellow" onclick="manualClose(0.75)" style="flex:1;padding:5px;">平 75%</button>
+<button class="mp-btn btn-yellow" onclick="manualClose(0.5)" style="flex:1;padding:5px;">平 50%</button>
+<button class="mp-btn btn-yellow" onclick="manualClose(0.25)" style="flex:1;padding:5px;">平 25%</button>
+</div>
+<div style="display:flex;gap:6px;">
+<div style="flex:1;display:flex;gap:4px;align-items:center;">
+<span style="font-size:11px;color:#68d391;white-space:nowrap;">止盈价</span>
+<input type="number" id="input-tp" placeholder="新止盈价" style="flex:1;background:#0f1117;border:1px solid #38a169;border-radius:5px;padding:4px 7px;color:#e2e8f0;font-size:12px;outline:none;">
+<button style="background:#1a2d1a;color:#68d391;border:1px solid #38a169;border-radius:5px;padding:4px 10px;font-size:12px;cursor:pointer;" onclick="updateTP()">确认</button>
+</div>
+<div style="flex:1;display:flex;gap:4px;align-items:center;">
+<span style="font-size:11px;color:#fc8181;white-space:nowrap;">止损价</span>
+<input type="number" id="input-sl" placeholder="新止损价" style="flex:1;background:#0f1117;border:1px solid #e53e3e;border-radius:5px;padding:4px 7px;color:#e2e8f0;font-size:12px;outline:none;">
+<button style="background:#2d1515;color:#fc8181;border:1px solid #e53e3e;border-radius:5px;padding:4px 10px;font-size:12px;cursor:pointer;" onclick="updateSL()">确认</button>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+      <div id="bottom-area" style="display:flex;flex-direction:column;overflow:hidden;padding:8px 14px 10px;gap:6px;flex:1;min-height:100px;">
+        <div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('log')">📋 运行日志</button>
+  <button class="tab-btn" onclick="switchTab('history')">📊 交易记录</button>
+  <button class="tab-btn" onclick="switchTab('ai')">🤖 AI对话</button>
+</div>
+        <div id="tab-log" class="tab-content active">
+          <div class="log-toolbar">
+            <span>日志</span>
+            <button class="filter-btn active" onclick="setLogFilter('all',this)">全部</button>
+            <button class="filter-btn" onclick="setLogFilter('scan',this)">信号</button>
+            <button class="filter-btn" onclick="setLogFilter('trade',this)">开平仓</button>
+            <button class="filter-btn" onclick="setLogFilter('error',this)">错误</button>
+            <button class="small-btn" onclick="clearLog()">清空</button>
+          </div>
+          <div id="log-box"></div>
+        </div>
+        <div id="tab-history" class="tab-content">
+
+<!-- 统计一行5格（压缩高度） -->
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;flex-shrink:0;">
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;padding:6px 10px;">
+<div style="font-size:10px;color:#718096;margin-bottom:2px;text-transform:uppercase;">总交易</div>
+<div style="font-size:18px;font-weight:700;color:#e2e8f0;" id="hs-total">0</div>
+</div>
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;padding:6px 10px;">
+<div style="font-size:10px;color:#718096;margin-bottom:2px;text-transform:uppercase;">胜率</div>
+<div style="font-size:18px;font-weight:700;color:#68d391;" id="hs-winrate">0%</div>
+</div>
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;padding:6px 10px;">
+<div style="font-size:10px;color:#718096;margin-bottom:2px;text-transform:uppercase;">总盈亏</div>
+<div style="font-size:18px;font-weight:700;color:#68d391;" id="hs-pnl">+0 U</div>
+</div>
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;padding:6px 10px;">
+<div style="font-size:10px;color:#718096;margin-bottom:2px;">均盈</div>
+<div style="font-size:16px;font-weight:700;color:#68d391;" id="hs-avg-win">0 U</div>
+</div>
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;padding:6px 10px;">
+<div style="font-size:10px;color:#718096;margin-bottom:2px;">均亏</div>
+<div style="font-size:16px;font-weight:700;color:#fc8181;" id="hs-avg-loss">0 U</div>
+</div>
+</div>
+
+<!-- 盈亏曲线（压缩高度） -->
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;padding:6px 12px;flex-shrink:0;">
+<div style="font-size:10px;color:#718096;margin-bottom:3px;text-transform:uppercase;letter-spacing:1px;">📈 累计盈亏曲线</div>
+<canvas id="pnl-chart" style="width:100%;height:60px;display:block;"></canvas>
+</div>
+
+<!-- 交易记录表（占满剩余空间） -->
+<div style="background:#1a1d2e;border:1px solid #2d3748;border-radius:8px;overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0;">
+<div style="padding:6px 12px;background:#0f1117;border-bottom:1px solid #2d3748;font-size:10px;color:#718096;text-transform:uppercase;letter-spacing:1px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+<span>交易记录</span>
+<div style="display:flex;gap:6px;">
+<button onclick="exportCSV()" style="padding:2px 9px;background:none;border:1px solid #38a169;color:#68d391;border-radius:4px;font-size:11px;cursor:pointer;">⬇️ 导出CSV</button>
+<button onclick="clearHistory()" style="padding:2px 9px;background:none;border:1px solid #e53e3e;color:#fc8181;border-radius:4px;font-size:11px;cursor:pointer;">🗑️ 清空</button>
+</div>
+</div>
+<div style="overflow-y:auto;flex:1;min-height:0;">
+<table style="width:100%;border-collapse:collapse;font-size:12px;">
+<thead>
+<tr style="background:#0f1117;position:sticky;top:0;">
+<th style="padding:6px 10px;text-align:left;color:#4a5568;font-weight:500;font-size:11px;white-space:nowrap;">开仓时间</th>
+<th style="padding:6px 6px;text-align:left;color:#4a5568;font-weight:500;font-size:11px;white-space:nowrap;">平仓时间</th>
+<th style="padding:6px 6px;text-align:center;color:#4a5568;font-weight:500;font-size:11px;">方向</th>
+<th style="padding:6px 6px;text-align:center;color:#4a5568;font-weight:500;font-size:11px;">原因</th>
+<th style="padding:6px 6px;text-align:right;color:#4a5568;font-weight:500;font-size:11px;">入场</th>
+<th style="padding:6px 6px;text-align:right;color:#4a5568;font-weight:500;font-size:11px;">出场</th>
+<th style="padding:6px 6px;text-align:right;color:#4a5568;font-weight:500;font-size:11px;">张数</th>
+<th style="padding:6px 6px;text-align:right;color:#4a5568;font-weight:500;font-size:11px;">盈亏%</th>
+<th style="padding:6px 10px;text-align:right;color:#4a5568;font-weight:500;font-size:11px;">盈亏(U)</th>
+</tr>
+</thead>
+<tbody id="hist-tbody">
+<tr>
+<td colspan="8" style="padding:30px;text-align:center;color:#4a5568;font-size:12px;">暂无交易记录</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+    <div id="tab-ai" class="tab-content" style="flex-direction:column;gap:6px;">
+  <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;padding-bottom:6px;">
+    <button class="filter-btn" onclick="askAI('现在能开多吗？结合当前价格、RSI、订单簿和趋势分析')">📈 能开多吗？</button>
+    <button class="filter-btn" onclick="askAI('现在能开空吗？结合当前价格、RSI、订单簿和趋势分析')">📉 能开空吗？</button>
+    <button class="filter-btn" onclick="askAI('当前持仓风险怎么样？要不要减仓或者平仓？')">⚠️ 持仓风险</button>
+    <button class="filter-btn" onclick="askAI('今天的交易表现如何？胜率和盈亏情况分析一下')">📊 今日表现</button>
+    <button class="filter-btn" onclick="askAI('根据当前波动率，建议止盈止损设置多少？')">🎯 止盈止损</button>
+    <button class="filter-btn" onclick="askAI('BTC当前处于什么行情？趋势还是震荡？接下来怎么看？')">🔍 行情判断</button>
+  </div>
+  <div id="ai-chat-box" style="flex:1;overflow-y:auto;background:#0f1117;border:1px solid #2d3748;border-radius:7px;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0;">
+    <div style="text-align:center;color:#4a5568;font-size:12px;padding:20px 0;">
+      🤖 AI已就绪，可以向我询问任何BTC交易相关问题
+
+      <span style="font-size:11px;">AI会自动获取当前市场数据来回答</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;margin-top:6px;">
+    <input type="file" id="ai-image-input" accept="image/*" style="display:none" onchange="onAiImageSelected(this)">
+<button onclick="document.getElementById('ai-image-input').click()"
+style="padding:8px 12px;background:none;border:1px solid #2d3748;border-radius:6px;color:#718096;font-size:18px;cursor:pointer;flex-shrink:0;"
+title="上传图片">📎</button>
+<div id="ai-image-preview" style="display:none;position:relative;flex-shrink:0;align-items:center;">
+<img id="ai-preview-img" style="height:36px;border-radius:4px;border:1px solid #f7931a;">
+<span onclick="clearAiImage()" style="position:absolute;top:-6px;right:-6px;background:#e53e3e;color:#fff;border-radius:50%;width:16px;height:16px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</span>
+</div>
+<input type="file" id="ai-file-input" accept=".pdf,.txt,.csv,.md,.json" style="display:none" onchange="onAiFileSelected(this)">
+<button onclick="document.getElementById('ai-file-input').click()"
+style="padding:8px 12px;background:none;border:1px solid #2d3748;border-radius:6px;color:#718096;font-size:18px;cursor:pointer;flex-shrink:0;"
+title="上传文件">📄</button>
+<div id="ai-file-preview" style="display:none;position:relative;flex-shrink:0;align-items:center;gap:4px;">
+<span id="ai-file-name" style="color:#f7931a;font-size:12px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+<span onclick="clearAiFile()" style="background:#e53e3e;color:#fff;border-radius:50%;width:16px;height:16px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</span>
+</div>
+
+    <input id="ai-input" type="text" placeholder="问AI任何问题，例如：现在趋势如何？"
+  style="flex:1;background:#0f1117;border:1px solid #2d3748;border-radius:6px;
+         padding:8px 12px;color:#e2e8f0;font-size:13px;outline:none;
+         pointer-events:auto;position:relative;z-index:999;"
+  onkeydown="if(event.key==='Enter'){event.stopPropagation();sendAIChat();}"
+  onclick="this.focus();"
+  onfocus="this.style.borderColor='#f7931a'"
+  onblur="this.style.borderColor='#2d3748'"
+/>
+    <button onclick="sendAIChat()" id="ai-send-btn" style="padding:8px 18px;background:linear-gradient(135deg,#f7931a,#e67e00);border:none;border-radius:6px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">发送</button>
+    <button onclick="clearAIChat()" style="padding:8px 12px;background:none;border:1px solid #2d3748;border-radius:6px;color:#718096;font-size:12px;cursor:pointer;">清空</button>
+  </div>
+</div>
+  </div>
+
+ <script>
+const { ipcRenderer } = require('electron');
+let botRunning = false, nextScanTimer = null, nextScanSec = 300;
+let botStartTime = null, runtimeTimer = null;
+let posOpenTime = null, posTimer = null;
+let currentPos = null;
+let logFilter = "all", leftCollapsed = false;
+let prevPrice = null, priceFlashTimer = null;
+// ✅ 新增 currentSymbol
+let currentSymbol = "BTC_USDT";
+let chartTF = "1m", chartData = [], chartView = { offset: 0, bars: 120 }, chartDrag = null, livePrice = null;
+let crosshairX = null, crosshairIdx = null;
+const PAD_L = 8, PAD_R = 95, PAD_T = 8, PAD_B = 22;
+const DEFAULTS = { capital: 10000, takePct: 1.5, stopPct: 0.8, leverage: 5, atrMult: 2, tp1Pct: 5, tp2Pct: 10, trailPct: 1, volMult: 1.2, posRatio: 20, maxLoss: 15 };
+
+// ★ 货币显示设置
+let currentCurrency = 'USDT';
+let exchangeRate = 7.25;
+
+function formatMoney(amount, currency = currentCurrency) {
+  if (amount == null || isNaN(amount)) return currency === 'CNY' ? '¥0.00' : '0.00 U';
+  if (currency === 'CNY') return '¥' + (amount * exchangeRate).toFixed(2);
+  return amount.toFixed(2) + ' U';
+}
+
+// ✅ 全局作用域，只定义一次
+function updateBalanceDisplay(data) {
+  if (!data) return;
+  window.lastBalanceData = data;
+  const balanceEl = document.getElementById("s-balance");
+  if (balanceEl) balanceEl.textContent = formatMoney(data.total || data.balance);
+  const pnlEl = document.getElementById("s-pnl");
+  if (pnlEl) {
+    const diff = data.pnl != null ? data.pnl : (data.total || data.balance) - (data.start || data.balance);
+    pnlEl.textContent = (diff >= 0 ? "+" : "") + formatMoney(diff);
+    pnlEl.className = "svalue " + (diff >= 0 ? "val-green" : "val-red");
+  }
+}
+
+
+function formatMoneyCompact(amount, currency = currentCurrency) {
+  if (amount == null || isNaN(amount)) return currency === 'CNY' ? '¥0' : '0U';
+  const value = currency === 'CNY' ? amount * exchangeRate : amount;
+  if (Math.abs(value) >= 10000) return (currency === 'CNY' ? '¥' : '') + (value / 10000).toFixed(2) + 'w' + (currency === 'USDT' ? ' U' : '');
+  else if (Math.abs(value) >= 1000) return (currency === 'CNY' ? '¥' : '') + (value / 1000).toFixed(2) + 'k' + (currency === 'USDT' ? ' U' : '');
+  else return currency === 'CNY' ? '¥' + value.toFixed(2) : value.toFixed(2) + ' U';
+}
+
+function updateCurrency() {
+  currentCurrency = document.getElementById("currencyMode").value;
+  localStorage.setItem("currencyMode", currentCurrency);
+  refreshAllMoneyDisplays();
+  appendLog("info", `💱 已切换为 ${currentCurrency} 显示 (汇率 ${exchangeRate})`);
+}
+
+function refreshAllMoneyDisplays() {
+  if (window.lastBalanceData) updateBalanceDisplay(window.lastBalanceData);
+  updateMath();
+}
+
+function toggleLeft() {
+  leftCollapsed = !leftCollapsed;
+  document.getElementById("left-panel").classList.toggle("collapsed", leftCollapsed);
+  document.getElementById("left-toggle").textContent = leftCollapsed ? "▶" : "◀";
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.getAttribute("onclick").includes("'" + name + "'")));
+  document.querySelectorAll(".tab-content").forEach(el => el.classList.toggle("active", el.id === "tab-" + name));
+  if (name === 'ai') setTimeout(() => { const input = document.getElementById("ai-input"); if (input) input.focus(); }, 100);
+}
+
+// 合约切换（BTC/ETH）
+function switchSymbol(symbol) {
+  currentSymbol = symbol;
+  appendLog("info", `🔄 切换合约: ${symbol}`);
+  chartData = [];
+  chartView.offset = 0;
+  loadChartKlines(chartTF);
+}
+function switchContract(contract) { switchSymbol(contract); }
+
+const AudioCtx = window.AudioContext || window.webkitAudioContext; let _actx = null;
+function getACtx() { if (!_actx) _actx = new AudioCtx(); return _actx; }
+function beep(type) { try { const ctx = getACtx(), osc = ctx.createOscillator(), g = ctx.createGain(); osc.connect(g); g.connect(ctx.destination); const t = ctx.currentTime; if (type === "open") { osc.type = "sine"; osc.frequency.setValueAtTime(880, t); g.gain.setValueAtTime(.3, t); g.gain.exponentialRampToValueAtTime(.001, t + .3); osc.start(t); osc.stop(t + .3); } if (type === "win") { osc.type = "sine"; osc.frequency.setValueAtTime(660, t); osc.frequency.setValueAtTime(880, t + .12); osc.frequency.setValueAtTime(1100, t + .24); g.gain.setValueAtTime(.3, t); g.gain.exponentialRampToValueAtTime(.001, t + .45); osc.start(t); osc.stop(t + .45); } if (type === "loss") { osc.type = "sawtooth"; osc.frequency.setValueAtTime(440, t); osc.frequency.setValueAtTime(300, t + .2); g.gain.setValueAtTime(.25, t); g.gain.exponentialRampToValueAtTime(.001, t + .5); osc.start(t); osc.stop(t + .5); } } catch (e) { } }
+function notify(title, body) { try { if (Notification.permission === "granted") new Notification(title, { body }); else if (Notification.permission !== "denied") Notification.requestPermission().then(p => { if (p === "granted") new Notification(title, { body }); }); } catch (e) { } }
+function startRuntime() { botStartTime = Date.now(); document.getElementById("runtime-display").style.display = ""; if (runtimeTimer) clearInterval(runtimeTimer); runtimeTimer = setInterval(() => { const s = Math.floor((Date.now() - botStartTime) / 1000); document.getElementById("runtime-val").textContent = [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60].map(v => String(v).padStart(2, "0")).join(":"); }, 1000); }
+function stopRuntime() { if (runtimeTimer) { clearInterval(runtimeTimer); runtimeTimer = null; } document.getElementById("runtime-display").style.display = "none"; botStartTime = null; }
+function startPosDuration(t) { posOpenTime = t || Date.now(); if (posTimer) clearInterval(posTimer); posTimer = setInterval(updatePosDuration, 15000); updatePosDuration(); }
+function updatePosDuration() { if (!posOpenTime) return; const s = Math.floor((Date.now() - posOpenTime) / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); document.getElementById("pos-duration").textContent = "持仓 " + (h > 0 ? `${h}h ${m}m` : `${m}m`); }
+function stopPosDuration() { if (posTimer) { clearInterval(posTimer); posTimer = null; } posOpenTime = null; }
+
+function switchTF(tf, btn) {
+  chartTF = tf;
+  document.querySelectorAll(".tf-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  chartData = [];
+  chartView.offset = 0;
+  loadChartKlines(tf);
+}
+
+// ✅ 修复：传入 symbol
+async function loadChartKlines(tf) {
+  const loading = document.getElementById("chart-loading");
+  loading.style.display = "inline";
+  try {
+    const bars = tf === "1d" ? 365 : tf === "1h" ? 500 : 300;
+    const sym = currentSymbol || "BTC_USDT";
+    let data = null;
+    try {
+      data = await ipcRenderer.invoke("chart:loadKlines", { interval: tf, bars, symbol: sym });
+    } catch(ipcErr) { data = null; }
+    // ✅ 若ipc失败或返回空，直接用Gate.io公共REST API
+    if (!data || data.length === 0) {
+      const SECS = { "1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400 };
+      const to = Math.floor(Date.now() / 1000);
+      const from = to - (SECS[tf] || 3600) * bars;
+      const url = `https://api.gateio.ws/api/v4/futures/usdt/candlesticks?contract=${sym}&from=${from}&to=${to}&interval=${tf}`;
+      const res = await fetch(url);
+      const raw = await res.json();
+      data = (raw || []).map(c => ({ time: +c.t, open: +c.o, high: +c.h, low: +c.l, close: +c.c, volume: +(c.v || 0) }));
+    }
+    chartData = (data || []).filter(c => c.close > 0).sort((a,b) => a.time - b.time);
+    chartView.bars = tf === "1d" ? 120 : tf === "1h" ? 150 : 200;
+    chartView.offset = 0;
+    // ✅ 等一帧再画，确保Canvas已布局
+    requestAnimationFrame(() => { setTimeout(drawChart, 50); });
+  } catch (e) {
+    appendLog("error", "图表加载失败: " + e.message);
+  } finally {
+    loading.style.display = "none";
+  }
+}
+
+function getVisibleData() {
+  const total = chartData.length;
+  if (total === 0) return [];
+  const end = total - chartView.offset;
+  const start = Math.max(0, end - chartView.bars);
+  return chartData.slice(start, end);
+}
+
+function drawChart() {
+const canvas = document.getElementById("price-chart"); if (!canvas) return;
+const dpr = window.devicePixelRatio || 1;
+// ✅ 强制读取 offsetWidth，比 getBoundingClientRect 更可靠
+const W = canvas.offsetWidth || canvas.parentElement?.offsetWidth || 700;
+const H = 220;
+canvas.width = W * dpr; canvas.height = H * dpr;
+canvas.style.width = W + "px"; canvas.style.height = H + "px";
+const ctx = canvas.getContext("2d");
+ctx.scale(dpr, dpr);
+ctx.clearRect(0, 0, W, H);
+
+// 若宽度太小（还未渲染），延迟重绘
+if (W < 50) { requestAnimationFrame(drawChart); return; }
+
+const vis = getVisibleData();
+if (vis.length === 0) {
+ctx.fillStyle = "#4a5568"; ctx.font = "12px sans-serif";
+ctx.textAlign = "center"; ctx.fillText("等待数据...", W / 2, H / 2);
+return;
+}
+
+// 计算可见数据起始索引（用于EMA/RSI计算）
+const visStart = Math.max(0, chartData.length - chartView.bars - chartView.offset);
+
+const dispData = vis.map(c => ({ ...c }));
+if (livePrice && chartTF === "1m" && chartView.offset === 0 && dispData.length > 0) {
+const last = dispData[dispData.length - 1];
+last.close = livePrice; last.high = Math.max(last.high, livePrice); last.low = Math.min(last.low, livePrice);
+}
+
+// 成交量区域高度（底部15%）
+const VOL_H = Math.floor(H * 0.15);
+const PAD_B_TOTAL = PAD_B + VOL_H;
+
+const plotW = W - PAD_L - PAD_R;
+const plotH = H - PAD_T - PAD_B_TOTAL;
+const n = dispData.length;
+const prices = dispData.flatMap(c => [c.high, c.low]);
+let mn = Math.min(...prices), mx = Math.max(...prices);
+
+// 计算EMA（基于全量数据，取可见部分）
+const allEMA9 = calcEMA(chartData, 9);
+const allEMA21 = calcEMA(chartData, 21);
+const visEMA9 = allEMA9.slice(visStart, visStart + n);
+const visEMA21 = allEMA21.slice(visStart, visStart + n);
+
+// EMA也要纳入价格范围
+const emaVals = [...visEMA9, ...visEMA21].filter(v => v !== null && v > 0);
+if (emaVals.length > 0) {
+  mn = Math.min(mn, ...emaVals);
+  mx = Math.max(mx, ...emaVals);
+}
+
+// 有持仓时，让现价居中，同时确保止损/止盈都在可视范围内
+if (document.getElementById("position-card").style.display !== "none") {
+const cur = livePrice || dispData[dispData.length - 1].close;
+const slEl = document.getElementById("pos-sl");
+const tpEl = document.getElementById("pos-tp");
+const sl = parseFloat(slEl?.dataset.price ?? slEl?.textContent);
+const tp = parseFloat(tpEl?.dataset.price ?? tpEl?.textContent);
+const keyPrices = [cur, sl, tp].filter(v => !isNaN(v));
+const keyMin = Math.min(...keyPrices);
+const keyMax = Math.max(...keyPrices);
+const halfRange = Math.max(
+Math.abs(cur - keyMin), Math.abs(cur - keyMax), (mx - mn) / 2
+) * 1.2;
+mn = Math.min(mn, cur - halfRange);
+mx = Math.max(mx, cur + halfRange);
+}
+
+const range = mx - mn || 1;
+const toX = i => PAD_L + (i + 0.5) * (plotW / n);
+const toY = p => PAD_T + (1 - (p - mn) / range) * plotH;
+const barW = Math.max(1, plotW / n * 0.6);
+
+// ── 背景渐变 ──
+const bg = ctx.createLinearGradient(0, PAD_T, 0, PAD_T + plotH);
+bg.addColorStop(0, "#141720");
+bg.addColorStop(1, "#0f1117");
+ctx.fillStyle = bg;
+ctx.fillRect(PAD_L, PAD_T, plotW, plotH);
+
+// ── 网格线 + 左侧价格标签（6条） ──
+ctx.font = "10px Consolas,monospace";
+[0.1667, 0.3333, 0.5, 0.6667, 0.8333, 1.0].forEach(r => {
+const y = PAD_T + r * plotH;
+const price = mx - r * range;
+ctx.strokeStyle = r === 1.0 ? "#1e223500" : "#1e2235";
+ctx.lineWidth = 0.5;
+ctx.beginPath(); ctx.setLineDash([3, 4]);
+ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+ctx.setLineDash([]);
+ctx.fillStyle = "#4a5568";
+ctx.textAlign = "right";
+ctx.fillText(price.toFixed(0), PAD_L - 3, y + 3);
+});
+
+// ── 成交量柱 ──
+const volAreaY = PAD_T + plotH + 2;
+const maxVol = Math.max(...dispData.map(c => c.volume || 0)) || 1;
+dispData.forEach((c, i) => {
+if (!c.volume) return;
+const x = toX(i);
+const vh = Math.max(1, ((c.volume / maxVol) * (VOL_H - 4)));
+const isUp = c.close >= c.open;
+ctx.fillStyle = (isUp ? "#68d391" : "#fc8181") + "55";
+ctx.fillRect(x - barW / 2, volAreaY + (VOL_H - 4) - vh, barW, vh);
+});
+
+// ── K线 ──
+dispData.forEach((c, i) => {
+const x = toX(i), isUp = c.close >= c.open, col = isUp ? "#68d391" : "#fc8181";
+const yO = toY(c.open), yC = toY(c.close), yH = toY(c.high), yL = toY(c.low);
+ctx.strokeStyle = col; ctx.lineWidth = 1;
+ctx.beginPath(); ctx.moveTo(x, yH); ctx.lineTo(x, yL); ctx.stroke();
+const bodyH = Math.max(1, Math.abs(yO - yC));
+const bodyY = Math.min(yO, yC);
+if (isUp) {
+ctx.fillStyle = col;
+ctx.fillRect(x - barW / 2, bodyY, barW, bodyH);
+} else {
+ctx.fillStyle = "#0f1117";
+ctx.fillRect(x - barW / 2, bodyY, barW, bodyH);
+ctx.strokeStyle = col; ctx.lineWidth = 1;
+ctx.strokeRect(x - barW / 2, bodyY, barW, bodyH);
+}
+});
+
+// ── EMA9线（黄色）──
+ctx.strokeStyle = "#f6c90e"; ctx.lineWidth = 1.2; ctx.setLineDash([]);
+ctx.beginPath();
+let ema9Started = false;
+visEMA9.forEach((v, i) => {
+  if (!v) return;
+  if (!ema9Started) { ctx.moveTo(toX(i), toY(v)); ema9Started = true; }
+  else ctx.lineTo(toX(i), toY(v));
+});
+ctx.stroke();
+
+// ── EMA21线（紫色）──
+ctx.strokeStyle = "#9f7aea"; ctx.lineWidth = 1.2;
+ctx.beginPath();
+let ema21Started = false;
+visEMA21.forEach((v, i) => {
+  if (!v) return;
+  if (!ema21Started) { ctx.moveTo(toX(i), toY(v)); ema21Started = true; }
+  else ctx.lineTo(toX(i), toY(v));
+});
+ctx.stroke();
+
+// ── EMA图例 ──
+ctx.font = "bold 10px Consolas,monospace"; ctx.textAlign = "left";
+const lastE9 = visEMA9.filter(v=>v)[visEMA9.filter(v=>v).length-1];
+const lastE21 = visEMA21.filter(v=>v)[visEMA21.filter(v=>v).length-1];
+if (lastE9) { ctx.fillStyle = "#f6c90e"; ctx.fillText(`EMA9 ${lastE9.toFixed(0)}`, PAD_L + 2, PAD_T + 12); }
+if (lastE21) { ctx.fillStyle = "#9f7aea"; ctx.fillText(`EMA21 ${lastE21.toFixed(0)}`, PAD_L + 2, PAD_T + 24); }
+
+// ── 持仓线 + 现价线 ──
+const posOccupiedY = [];
+
+const curPrice = livePrice || dispData[dispData.length - 1].close;
+const curY = Math.max(PAD_T + 2, Math.min(H - PAD_B - 2, toY(curPrice)));
+ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1;
+ctx.setLineDash([2, 3]);
+ctx.beginPath(); ctx.moveTo(PAD_L, curY); ctx.lineTo(W - PAD_R, curY); ctx.stroke();
+ctx.setLineDash([]);
+
+if (document.getElementById("position-card").style.display !== "none") {
+const posLines = [
+{ id: "pos-entry", color: "#63b3ed", label: "入场", dash: [4, 4] },
+{ id: "pos-sl", color: "#fc8181", label: "止损", dash: [3, 3] },
+{ id: "pos-tp", color: "#68d391", label: "止盈", dash: [3, 3] },
+{ id: "_live", color: "#ffffff", label: "现价", dash: [2, 2] }
+];
+const LABEL_H = 14;
+const usedY = [];
+const validLines = posLines.map(({ id, color, label, dash }) => {
+let v;
+if (id === "_live") { v = livePrice || dispData[dispData.length - 1].close; }
+else { const el = document.getElementById(id); v = parseFloat(el?.dataset.price ?? el?.textContent); }
+if (isNaN(v)) return null;
+return { id, v, color, label, dash, y: Math.max(PAD_T + 2, Math.min(PAD_T + plotH - 2, toY(v))) };
+}).filter(Boolean);
+validLines.forEach(line => {
+ctx.strokeStyle = line.color + "cc"; ctx.lineWidth = line.id === "_live" ? 1 : 1.5;
+ctx.setLineDash(line.dash);
+ctx.beginPath(); ctx.moveTo(PAD_L, line.y); ctx.lineTo(W - PAD_R, line.y); ctx.stroke();
+ctx.setLineDash([]);
+let labelY = line.y + 4;
+for (const uy of usedY) { if (Math.abs(labelY - uy) < LABEL_H) labelY = uy + LABEL_H; }
+usedY.push(labelY);
+if (line.id !== "pos-entry") posOccupiedY.push(labelY);
+ctx.font = "bold 10px Consolas,monospace";
+const priceText = line.v.toLocaleString();
+const tw = ctx.measureText(priceText).width + 8;
+ctx.fillStyle = line.color + "33";
+ctx.fillRect(W - PAD_R + 6, labelY - 11, tw, 13);
+ctx.fillStyle = line.color; ctx.textAlign = "left";
+ctx.fillText(priceText, W - PAD_R + 10, labelY);
+const lw = ctx.measureText(line.label).width + 8;
+ctx.fillStyle = line.color + "44";
+ctx.fillRect(W - PAD_R - lw - 4, line.y - 13, lw, 14);
+ctx.fillStyle = line.color; ctx.textAlign = "right";
+ctx.fillText(line.label, W - PAD_R - 6, line.y - 2);
+});
+}
+
+// ── 价格轴 ticks ──
+const curP = dispData[n - 1].close;
+const ticks = [{ p: mx, color: "#68d391" }, { p: curP, color: "#ffffff" }, { p: mn, color: "#fc8181" }];
+const shown = [];
+ctx.font = "bold 10px Consolas,monospace"; ctx.textAlign = "left";
+ticks.forEach(t => {
+const y = toY(t.p);
+const labelY = y + 4;
+const tooCloseToTick = shown.some(s => Math.abs(toY(s.p) - y) <= 15);
+const tooCloseToPos = posOccupiedY.some(py => Math.abs(labelY - py) <= 16);
+if (tooCloseToTick || tooCloseToPos) return;
+shown.push(t);
+ctx.strokeStyle = t.color + "55"; ctx.lineWidth = 1;
+ctx.setLineDash([2, 3]);
+ctx.beginPath(); ctx.moveTo(W - PAD_R, y); ctx.lineTo(W - PAD_R + 5, y); ctx.stroke();
+ctx.setLineDash([]);
+ctx.fillStyle = t.color;
+ctx.fillText(t.p.toLocaleString(), W - PAD_R + 8, labelY);
+});
+
+// ── 时间轴 ──
+ctx.fillStyle = "#4a5568"; ctx.font = "10px sans-serif"; ctx.textAlign = "center";
+const step = Math.max(1, Math.floor(n / 6));
+dispData.forEach((c, i) => {
+if (i % step === 0) {
+const x = toX(i), d = new Date((c.time + 8 * 3600) * 1000);
+let label;
+if (chartTF === "1d") label = `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+else if (chartTF === "1h") label = `${d.getUTCHours()}:00`;
+else label = `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+ctx.fillText(label, x, H - 5);
+}
+});
+
+// ── 十字光标 ──
+if (crosshairX !== null && crosshairIdx !== null && crosshairIdx >= 0 && crosshairIdx < n) {
+  const cx = crosshairX;
+  const c = dispData[crosshairIdx];
+  const cy = toY(c.close);
+  // 竖线
+  ctx.strokeStyle = "#ffffff44"; ctx.lineWidth = 0.8;
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(cx, PAD_T); ctx.lineTo(cx, PAD_T + plotH); ctx.stroke();
+  // 横线
+  ctx.beginPath(); ctx.moveTo(PAD_L, cy); ctx.lineTo(W - PAD_R, cy); ctx.stroke();
+  ctx.setLineDash([]);
+  // 价格标注（右侧）
+  ctx.font = "bold 10px Consolas,monospace"; ctx.textAlign = "left";
+  const priceStr = c.close.toFixed(1);
+  const pw = ctx.measureText(priceStr).width + 8;
+  ctx.fillStyle = "#ffffff22"; ctx.fillRect(W - PAD_R + 2, cy - 9, pw, 12);
+  ctx.fillStyle = "#ffffff"; ctx.fillText(priceStr, W - PAD_R + 6, cy + 1);
+}
+
+// ── 绘制RSI副图 ──
+drawRSIChart(dispData, chartData, visStart);
+}
+let currentTrendMode = '1h';
+
+// ── EMA计算 ──
+function calcEMA(data, period) {
+  const k = 2 / (period + 1);
+  const result = [];
+  let ema = null;
+  for (let i = 0; i < data.length; i++) {
+    if (ema === null) { ema = data[i].close; }
+    else { ema = data[i].close * k + ema * (1 - k); }
+    result.push(ema);
+  }
+  return result;
+}
+
+// ── RSI计算 ──
+function calcRSI(data, period) {
+  const result = new Array(data.length).fill(null);
+  if (data.length < period + 1) return result;
+  let gains = 0, losses = 0;
+  for (let i = 1; i <= period; i++) {
+    const d = data[i].close - data[i-1].close;
+    if (d > 0) gains += d; else losses -= d;
+  }
+  let avgGain = gains / period, avgLoss = losses / period;
+  for (let i = period; i < data.length; i++) {
+    if (i === period) { result[i] = avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss); continue; }
+    const d = data[i].close - data[i-1].close;
+    const g = d > 0 ? d : 0, l = d < 0 ? -d : 0;
+    avgGain = (avgGain * (period - 1) + g) / period;
+    avgLoss = (avgLoss * (period - 1) + l) / period;
+    result[i] = avgLoss === 0 ? 100 : 100 - 100 / (1 + avgGain / avgLoss);
+  }
+  return result;
+}
+
+// ── RSI副图 ──
+function drawRSIChart(visData, fullData, visStart) {
+  const canvas = document.getElementById("rsi-chart");
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || canvas.parentElement?.offsetWidth || 700;
+  const H = 60;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + "px"; canvas.style.height = H + "px";
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+  const PAD_L2 = 8, PAD_R2 = 95, PAD_T2 = 4, PAD_B2 = 14;
+  const plotW = W - PAD_L2 - PAD_R2, plotH = H - PAD_T2 - PAD_B2;
+  const n = visData.length;
+
+  // 背景
+  ctx.fillStyle = "#0f1117";
+  ctx.fillRect(PAD_L2, PAD_T2, plotW, plotH);
+
+  // 计算全量RSI，取可见部分
+  const allRSI = calcRSI(fullData, 14);
+  const visRSI = allRSI.slice(visStart, visStart + n);
+
+  const toX = i => PAD_L2 + (i + 0.5) * (plotW / n);
+  const toY = v => PAD_T2 + (1 - (v - 0) / 100) * plotH;
+
+  // 超买超卖区域
+  ctx.fillStyle = "rgba(252,129,129,0.08)";
+  ctx.fillRect(PAD_L2, toY(70), plotW, toY(100) - toY(70));
+  ctx.fillStyle = "rgba(104,211,145,0.08)";
+  ctx.fillRect(PAD_L2, toY(30), plotW, toY(0) - toY(30));
+
+  // 参考线 70/50/30
+  [70, 50, 30].forEach(v => {
+    const y = toY(v);
+    ctx.strokeStyle = v === 50 ? "#2d3748" : (v === 70 ? "#fc818133" : "#68d39133");
+    ctx.lineWidth = v === 50 ? 1 : 0.5;
+    ctx.setLineDash(v === 50 ? [3,3] : []);
+    ctx.beginPath(); ctx.moveTo(PAD_L2, y); ctx.lineTo(W - PAD_R2, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#4a5568"; ctx.font = "9px Consolas,monospace"; ctx.textAlign = "right";
+    ctx.fillText(v, PAD_L2 - 2, y + 3);
+  });
+
+  // RSI线
+  ctx.strokeStyle = "#b794f4"; ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  let started = false;
+  visRSI.forEach((v, i) => {
+    if (v === null) return;
+    if (!started) { ctx.moveTo(toX(i), toY(v)); started = true; }
+    else ctx.lineTo(toX(i), toY(v));
+  });
+  ctx.stroke();
+
+  // 最后一个RSI值标注
+  const lastRSI = visRSI.filter(v => v !== null).pop();
+  if (lastRSI !== undefined) {
+    const lastIdx = visRSI.length - 1 - [...visRSI].reverse().findIndex(v => v !== null);
+    const ly = toY(lastRSI);
+    const col = lastRSI >= 70 ? "#fc8181" : lastRSI <= 30 ? "#68d391" : "#b794f4";
+    ctx.font = "bold 9px Consolas,monospace"; ctx.textAlign = "left";
+    ctx.fillStyle = col + "44";
+    const tw = ctx.measureText("RSI:" + lastRSI.toFixed(1)).width + 6;
+    ctx.fillRect(W - PAD_R2 + 4, ly - 9, tw, 12);
+    ctx.fillStyle = col;
+    ctx.fillText("RSI:" + lastRSI.toFixed(1), W - PAD_R2 + 7, ly + 1);
+  }
+
+  // RSI标题
+  ctx.font = "9px Consolas,monospace"; ctx.textAlign = "left"; ctx.fillStyle = "#4a5568";
+  ctx.fillText("RSI(14)", PAD_L2 + 2, PAD_T2 + 8);
+
+  // 十字光标竖线（与主图同步）
+  if (crosshairX !== null) {
+    ctx.strokeStyle = "#ffffff44"; ctx.lineWidth = 0.8;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(crosshairX, PAD_T2); ctx.lineTo(crosshairX, H - PAD_B2); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const savedKey = localStorage.getItem("gate_api_key");
+  const savedSecret = localStorage.getItem("gate_api_secret");
+  if (savedKey) document.getElementById("apiKey").value = savedKey;
+  if (savedSecret) document.getElementById("apiSecret").value = savedSecret;
+  const savedCurrency = localStorage.getItem("currencyMode");
+  if (savedCurrency) { document.getElementById("currencyMode").value = savedCurrency; currentCurrency = savedCurrency; }
+  // ✅ 恢复上次的参数设置
+  ["takePct","stopPct","leverage","posRatio","maxLoss","dailyTpPct","dailySlPct","atrMult","tp1Pct","tp2Pct","trailPct","volMult"].forEach(id => {
+    const v = localStorage.getItem("cfg_" + id);
+    if (v != null) {
+      const el = document.getElementById(id); const elN = document.getElementById(id + "Num");
+      if (el) el.value = v;
+      if (elN) elN.value = v;
+    }
+  });
+  const savedDryRun = localStorage.getItem("cfg_dryRun");
+  if (savedDryRun != null) { document.getElementById("dryRun").checked = savedDryRun === "1"; onDryRunToggle(); }
+  const savedTrendMode = localStorage.getItem("cfg_trendMode");
+  if (savedTrendMode) setTrendMode(savedTrendMode);
+  updateMath();
+  const cv = document.getElementById("price-chart");
+  if (cv) {
+    cv.addEventListener("wheel", (e) => { e.preventDefault(); const delta = e.deltaY > 0 ? 1 : -1; chartView.bars = Math.max(20, Math.min(chartData.length, chartView.bars + delta * 10)); drawChart(); });
+cv.addEventListener("mousedown", (e) => { chartDrag = { x: e.clientX, offset: chartView.offset }; });
+cv.addEventListener("mousemove", (e) => {
+const vis = getVisibleData();
+if (vis.length > 0) showTooltip(e, vis);
+});
+cv.addEventListener("mouseleave", () => {
+document.getElementById("chart-tooltip").style.display = "none";
+crosshairX = null; crosshairIdx = null; drawChart();
+});
+window.addEventListener("mousemove", (e) => { if (!chartDrag) return; const dx = e.clientX - chartDrag.x; const shift = Math.round(dx / 5); if (shift !== 0) { chartView.offset = Math.max(0, Math.min(chartData.length - chartView.bars, chartView.offset - shift)); drawChart(); } });
+window.addEventListener("mouseup", () => { chartDrag = null; });
+  }
+});
+
+function saveConfigDialog() {
+  const cfg = getConfig();
+  ipcRenderer.send("config:saveDialog", cfg);
+  appendLog("info", "💾 正在选择保存位置...");
+}
+function loadConfigDialog() {
+  ipcRenderer.send("config:loadDialog");
+  appendLog("info", "📂 正在选择配置文件...");
+}
+function clearSimData() {
+  if (!confirm("确认清除模拟数据？")) return;
+  ipcRenderer.send("sim:clear");
+  appendLog("warn", "🗑️ 模拟数据已清除");
+}
+ipcRenderer.on("config:saved", (_, result) => {
+  if (result.success) appendLog("win", "✅ 配置已保存: " + result.path);
+  else appendLog("error", "❌ 保存失败: " + result.error);
+});
+
+// ✅ 只注册一次 config:loaded
+ipcRenderer.on("config:loaded", (_, cfg) => {
+  if (!cfg) { appendLog("warn", "⚠️ 配置加载失败"); return; }
+  if (cfg.apiKey) document.getElementById("apiKey").value = cfg.apiKey;
+  const savedSimCapital = localStorage.getItem("sim_capital");
+const isDry = document.getElementById("dryRun").checked;
+document.getElementById("capital").value = (isDry && savedSimCapital) ? savedSimCapital : (cfg.capital || 10000);
+  ["takePct", "stopPct", "leverage", "posRatio", "maxLoss", "atrMult", "tp1Pct", "tp2Pct", "trailPct", "volMult"].forEach(id => {
+    if (cfg[id] != null) { document.getElementById(id).value = cfg[id]; document.getElementById(id + "Num").value = cfg[id]; }
+  });
+  if (cfg.trendMode) setTrendMode(cfg.trendMode);
+  document.getElementById("dryRun").checked = cfg.dryRun !== false;
+  onDryRunToggle();
+  updateMath();
+  appendLog("info", "✅ 配置已加载并应用");
+});
+
+ipcRenderer.on("config:error", (_, msg) => appendLog("error", msg));
+
+function showTooltip(e, vis) {
+  const cv = document.getElementById("price-chart");
+  if (!vis.length) return;
+  const rect = cv.getBoundingClientRect();
+  const W = cv.clientWidth, PAD_L2 = 8, PAD_R2 = 95;
+  const plotW = W - PAD_L2 - PAD_R2;
+  const mx2 = e.clientX - rect.left - PAD_L2;
+  const idx = Math.floor(mx2 / (plotW / vis.length));
+  if (idx < 0 || idx >= vis.length) {
+    document.getElementById("chart-tooltip").style.display = "none";
+    crosshairX = null; crosshairIdx = null; drawChart(); return;
+  }
+  const c = vis[idx];
+  const d = new Date((c.time + 8 * 3600) * 1000), dt = d.toISOString().replace("T", " ").slice(0, 16);
+  const tip = document.getElementById("chart-tooltip"), isUp = c.close >= c.open;
+
+  // EMA值（从全量数据计算可见部分）
+  const visStart = Math.max(0, chartData.length - chartView.bars - chartView.offset);
+  const allEMA9 = calcEMA(chartData, 9);
+  const allEMA21 = calcEMA(chartData, 21);
+  const allRSI = calcRSI(chartData, 14);
+  const e9 = allEMA9[visStart + idx];
+  const e21 = allEMA21[visStart + idx];
+  const rsiVal = allRSI[visStart + idx];
+  const emaStr = e9 && e21 ? ` <span style="color:#718096">|</span> <span style="color:#f6c90e">EMA9:${e9.toFixed(0)}</span> <span style="color:#9f7aea">EMA21:${e21.toFixed(0)}</span>` : '';
+  const rsiStr = rsiVal !== null ? ` <span style="color:#718096">|</span> <span style="color:${rsiVal>=70?"#fc8181":rsiVal<=30?"#68d391":"#b794f4"}">RSI:${rsiVal.toFixed(1)}</span>` : '';
+
+  tip.innerHTML = `<span style="color:#718096">${dt}</span> <span style="color:#a0aec0">开</span><b style="color:${isUp?"#68d391":"#fc8181"}">${c.open.toLocaleString()}</b> <span style="color:#a0aec0">高</span><b style="color:#68d391">${c.high.toLocaleString()}</b> <span style="color:#a0aec0">低</span><b style="color:#fc8181">${c.low.toLocaleString()}</b> <span style="color:#a0aec0">收</span><b style="color:#f7931a">${c.close.toLocaleString()}</b>${emaStr}${rsiStr}`;
+  tip.style.display = "block"; tip.style.left = (e.clientX + 12) + "px"; tip.style.top = (e.clientY - 28) + "px";
+
+  // 更新十字光标
+  crosshairX = PAD_L2 + (idx + 0.5) * (plotW / vis.length);
+  crosshairIdx = idx;
+  drawChart();
+}
+
+function updateLiveChart(price) {
+  livePrice = price;
+  if (chartView.offset === 0) {
+    // 更新当前 TF 的最后一根 K 线（实时收盘价/高低）
+    const SECS = { "1m": 60, "5m": 300, "15m": 900, "1h": 3600, "4h": 14400, "1d": 86400 };
+    const tf_sec = SECS[chartTF] || 60;
+    const now = Math.floor(Date.now() / (tf_sec * 1000)) * tf_sec;
+    if (chartData.length > 0 && chartData[chartData.length - 1].time === now) {
+      const last = chartData[chartData.length - 1];
+      last.close = price;
+      last.high = Math.max(last.high, price);
+      last.low = Math.min(last.low, price);
+    } else if (chartData.length > 0) {
+      chartData.push({ time: now, open: price, high: price, low: price, close: price });
+      if (chartData.length > 1000) chartData.shift();
+    }
+    drawChart();
+    if (currentPos) {
+      const { entry, dir } = currentPos;
+      const pPct = dir === "LONG"
+        ? (price - entry) / entry * 100
+        : (entry - price) / entry * 100;
+      updatePositionProgress(price, +pPct.toFixed(2));
+    }
+  }
+}
+
+function flashPrice(isUp) {
+  const el = document.getElementById("price-display");
+  if (priceFlashTimer) clearTimeout(priceFlashTimer);
+  el.classList.remove("up", "down"); el.classList.add(isUp ? "up" : "down");
+  priceFlashTimer = setTimeout(() => el.classList.remove("up", "down"), 350);
+}
+
+function updateScoreBar(score) {
+  const wrap = document.getElementById("score-bar-wrap");
+  if (score == null) { wrap.style.display = "none"; return; }
+  wrap.style.display = "flex";
+  document.getElementById("score-val").textContent = score;
+  const fg = document.getElementById("score-bar-fg");
+  fg.style.width = score + "%";
+  fg.style.background = score >= 70 ? "#68d391" : score >= 50 ? "#f7931a" : "#fc8181";
+}
+
+function setLogFilter(f, btn) {
+  logFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("log-box").querySelectorAll("div[data-cat]").forEach(el => {
+    const c = el.dataset.cat;
+    const show = f === "all" || (f === "scan" && c === "scan") || (f === "trade" && (c === "open" || c === "win" || c === "loss")) || (f === "error" && (c === "error" || c === "warn"));
+    el.classList.toggle("log-hidden", !show);
+  });
+}
+
+function setTrendMode(mode) {
+  currentTrendMode = mode;
+  ['1h', '30m', 'auto'].forEach(m => {
+    const btn = document.getElementById('mode-' + m);
+    if (!btn) return;
+    if (m === mode) { btn.classList.add('active'); btn.style.background = '#f7931a'; btn.style.color = '#0f1117'; btn.style.borderColor = '#f7931a'; btn.style.fontWeight = '600'; }
+    else { btn.classList.remove('active'); btn.style.background = '#1a202c'; btn.style.color = '#718096'; btn.style.borderColor = '#2d3748'; btn.style.fontWeight = 'normal'; }
+  });
+  const modeText = mode === '1h' ? '1小时保守' : mode === '30m' ? '30分钟激进' : 'ADX自适应';
+  appendLog('info', `↺ 趋势模式切换: ${modeText}`);
+  // ✅ 持久化趋势模式
+  localStorage.setItem("cfg_trendMode", mode);
+}
+function applyConfigLive() {
+if (typeof ipcRenderer === "undefined") return;
+const cfg = {
+takePct: parseFloat(document.getElementById("takePct").value),
+stopPct: parseFloat(document.getElementById("stopPct").value),
+leverage: parseInt(document.getElementById("leverage").value),
+positionRatio: parseInt(document.getElementById("posRatio").value) / 100,
+maxLoss: parseFloat(document.getElementById("maxLoss").value),
+dailyTpPct: parseFloat(document.getElementById("dailyTpPct").value),
+dailySlPct: parseFloat(document.getElementById("dailySlPct").value),
+atrMult: parseFloat(document.getElementById("atrMult").value),
+tp1Pct: parseFloat(document.getElementById("tp1Pct").value),
+tp2Pct: parseFloat(document.getElementById("tp2Pct").value),
+trailPct: parseFloat(document.getElementById("trailPct").value),
+volMult: parseFloat(document.getElementById("volMult").value),
+};
+ipcRenderer.send("bot:updateConfig", cfg);
+// ✅ 同时持久化到 localStorage，重启后自动恢复
+["takePct","stopPct","leverage","posRatio","maxLoss","dailyTpPct","dailySlPct","atrMult","tp1Pct","tp2Pct","trailPct","volMult"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) localStorage.setItem("cfg_" + id, el.value);
+});
+const trendSel = document.querySelector(".mode-btn.active");
+if (trendSel) localStorage.setItem("cfg_trendMode", trendSel.dataset.mode || trendSel.getAttribute("onclick")?.match(/'([^']+)'/)?.[1] || "");
+localStorage.setItem("cfg_dryRun", document.getElementById("dryRun").checked ? "1" : "0");
+}
+function toggleBot() { if (!botRunning) startBot(); else stopBot(); }
+
+function startBot() {
+  const cfg = getConfig();
+  // ✅ 启动时自动保存当前参数
+  ipcRenderer.send("bot:updateConfig", cfg);
+  if (document.getElementById("rememberApi")?.checked !== false) {
+    if (cfg.apiKey) localStorage.setItem("gate_api_key", cfg.apiKey);
+    if (cfg.apiSecret) localStorage.setItem("gate_api_secret", cfg.apiSecret);
+  }
+  if (!cfg.dryRun) {
+    if (!cfg.apiKey || cfg.apiKey.length < 10) { appendLog("error", "✗ API Key 格式错误，请检查"); return; }
+    if (!cfg.apiSecret || cfg.apiSecret.length < 10) { appendLog("error", "✗ API Secret 不能为空"); return; }
+  }
+  document.getElementById("capital").disabled = true; document.getElementById("capital").style.opacity = "0.6";
+  document.getElementById("dryRun").disabled = true; document.getElementById("dryRun").parentElement.style.opacity = "0.6";
+  document.getElementById("apiKey").disabled = true; document.getElementById("apiKey").style.opacity = "0.6";
+  document.getElementById("apiSecret").disabled = true; document.getElementById("apiSecret").style.opacity = "0.6";
+  document.getElementById("ai-input").disabled = false;
+  if (cfg.dryRun) {
+localStorage.setItem("sim_capital", cfg.capital);
+}
+
+  ipcRenderer.send("bot:start", cfg);
+}
+
+function stopBot() { ipcRenderer.send("bot:stop"); }
+
+function handleBotStopped() {
+  botRunning = false;
+  document.getElementById("btn-start").textContent = "▶ 启动机器人"; document.getElementById("btn-start").className = "start";
+  document.getElementById("status-pill").textContent = "● 未运行"; document.getElementById("status-pill").className = "status-pill pill-stopped";
+  document.getElementById("ai-input").disabled = false;
+  if (nextScanTimer) clearInterval(nextScanTimer);
+  document.getElementById("s-next").textContent = "--";
+  stopRuntime();
+  document.getElementById("apiKey").disabled = false; document.getElementById("apiKey").style.opacity = "1";
+  document.getElementById("apiSecret").disabled = false; document.getElementById("apiSecret").style.opacity = "1";
+  document.getElementById("dryRun").disabled = false; document.getElementById("dryRun").parentElement.style.opacity = "1";
+  if (document.getElementById("dryRun").checked) { document.getElementById("capital").disabled = false; document.getElementById("capital").style.opacity = "1"; }
+  appendLog("info", "■ 机器人已停止");
+  window._simCapitalLocked = false; 
+}
+
+function getConfig() {
+  return {
+    apiKey: document.getElementById("apiKey").value,
+    apiSecret: document.getElementById("apiSecret").value,
+    dryRun: document.getElementById("dryRun").checked,
+    capital: parseFloat(document.getElementById("capital").value) || 500,
+    takePct: parseFloat(document.getElementById("takePctNum").value),
+    stopPct: parseFloat(document.getElementById("stopPctNum").value),
+    leverage: parseInt(document.getElementById("leverageNum").value),
+    posRatio: parseFloat(document.getElementById("posRatioNum").value),
+    maxLoss: parseFloat(document.getElementById("maxLossNum").value),
+    trailPct: parseFloat(document.getElementById("trailPctNum").value),
+    atrMult: parseFloat(document.getElementById("atrMultNum").value),
+    volMult: parseFloat(document.getElementById("volMultNum").value),
+    tp1Pct: parseFloat(document.getElementById("tp1PctNum").value),
+    tp2Pct: parseFloat(document.getElementById("tp2PctNum").value),
+    dailyTpPct: parseFloat(document.getElementById("dailyTpPct")?.value ?? 3),
+    dailySlPct: parseFloat(document.getElementById("dailySlPct")?.value ?? 2),
+    trendMode: currentTrendMode,
+    partialPct: 50,
+    aiDriven: document.getElementById("aiDriven").checked,
+  };
+}
+
+ipcRenderer.on("bot:started", () => {
+  botRunning = true;
+  const cfg = getConfig();
+  document.getElementById("btn-start").textContent = "■ 停止机器人"; document.getElementById("btn-start").className = "stop";
+  const pill = document.getElementById("status-pill");
+  pill.textContent = cfg.dryRun ? "● 模拟运行中" : "● 运行中";
+  pill.className = "status-pill " + (cfg.dryRun ? "pill-dry" : "pill-running");
+  startCountdown(); startRuntime();
+  loadChartKlines(chartTF);
+  appendLog("info", `▶ 机器人已启动 ${cfg.dryRun ? "【模拟模式】" : "【真实交易】"}`);
+});
+
+ipcRenderer.on("bot:stopped", handleBotStopped);
+ipcRenderer.on("trade:error", (_, msg) => appendLog("error", "操作失败: " + msg));
+
+// ✅ 修复：renderHistory 同时触发 drawPnlChart
+ipcRenderer.on("history:updated", (_, rec) => {
+  renderHistory(rec);
+  drawPnlChart(rec);
+});
+
+ipcRenderer.on("history:exported", (_, p) => appendLog("win", "✅ CSV 已导出: " + p));
+
+ipcRenderer.on("bot:event", (_, ev) => {
+  const { type, data } = ev;
+
+  if (type === "marketData") {
+    const fb = document.getElementById("funding-badge");
+    const ob = document.getElementById("orderbook-badge");
+    const ls = document.getElementById("ls-badge");
+    const oi = document.getElementById("oi-badge");
+    if (data.fundingRate && fb) {
+const rate = Math.abs(parseFloat(data.fundingRate.rate));
+// 只在费率超过0.05%时显示
+fb.style.display = rate > 0.05 ? "" : "none";
+fb.textContent = "💰 费率" + data.fundingRate.rate + "%";
+fb.style.color = rate > 0.05 ? "#fbd38d" : "#68d391";
+}
+if (data.orderBook && ob) {
+const ratio = parseFloat(data.orderBook.ratio);
+// 只在买卖失衡超过60/40时显示
+ob.style.display = (ratio > 60 || ratio < 40) ? "" : "none";
+ob.textContent = "📖 买方" + data.orderBook.ratio + "%";
+ob.style.color = ratio > 60 ? "#68d391" : "#fc8181";
+}
+    if (data.lsRatio && ls) {
+      ls.style.display = "";
+      ls.textContent = "👥 多" + data.lsRatio.longRatio + "%";
+      ls.style.color = parseFloat(data.lsRatio.longRatio) > 65 ? "#fc8181" : parseFloat(data.lsRatio.longRatio) < 35 ? "#68d391" : "#a0aec0";
+    }
+    if (data.openInterest && oi) {
+      oi.style.display = "";
+      oi.textContent = "📊 OI" + (data.openInterest.change >= 0 ? "+" : "") + data.openInterest.change + "%";
+      oi.style.color = Math.abs(parseFloat(data.openInterest.change)) > 3 ? "#fbd38d" : "#a0aec0";
+    }
+  }
+if (type === "simCapital") {
+document.getElementById("capital").value = data.capital.toFixed(2);
+localStorage.setItem("sim_capital", data.capital.toFixed(2));
+updateMath();
+}
+
+
+  if (type === "log") {
+    appendLog(data.level, `[${data.ts}] ${data.msg}`);
+    if (data.level === "scan" || data.level === "open") resetCountdown();
+    if (data.msg && data.msg.includes("冷却期")) {
+      const cb = document.getElementById("cool-badge");
+      if (data.msg.includes("启动")) {
+const m = data.msg.match(/(\d+)分钟内不开/);
+cb.style.display = "";
+cb.textContent = m ? `⏸ 冷却${m[1]}min` : "⏸ 冷却中";
+}
+      else if (data.msg.includes("跳过")) { const m = data.msg.match(/剩余约(\d+)分钟/); if (m) cb.textContent = `⏸ 冷却${m[1]}min`; }
+    }
+  }
+
+  if (type === "rate") {
+    exchangeRate = data.rate;
+    if (currentCurrency === 'CNY') refreshAllMoneyDisplays();
+  }
+
+  if (type === "conn") {
+    const b = document.getElementById("conn-badge");
+    b.textContent = data.ok ? "● Gate.io 已连接" : "● Gate.io 断线";
+    b.className = data.ok ? "conn-ok" : "conn-err";
+  }
+
+  if (type === "price") {
+const p = data.price;
+const priceStr = currentCurrency === 'CNY'
+? '¥' + (p * exchangeRate).toLocaleString()
+: Number(p).toLocaleString() + ' <span>USDT</span>';
+document.getElementById("price-display").innerHTML = priceStr;
+if (prevPrice !== null) flashPrice(p >= prevPrice);
+prevPrice = p;
+updateLiveChart(p);
+
+// ✅ 复用顶部价格，实时更新持仓箭头（每500ms）
+if (currentPos) {
+const { dir, entry } = currentPos;
+const pPct = dir === "LONG"
+? (p - entry) / entry * 100
+: (entry - p) / entry * 100;
+updatePositionProgress(p, +pPct.toFixed(2));
+}
+}
+
+  if (type === "balance") {
+window.lastBalanceData = data;
+
+// 账户资金（总本金）
+const balanceEl = document.getElementById("s-balance");
+balanceEl.textContent = formatMoney(data.simBalance || data.balance);
+
+// 可用余额（扣除保证金）
+const availEl = document.getElementById("s-avail");
+if (availEl) availEl.textContent = formatMoney(data.balance);
+
+// 开仓金额（保证金）
+const marginEl = document.getElementById("s-margin");
+if (marginEl) {
+marginEl.textContent = data.margin > 0 ? formatMoney(data.margin) : "--";
+marginEl.className = "svalue " + (data.margin > 0 ? "val-blue" : "val-neutral");
+}
+
+// 本次盈亏（有持仓时显示浮动盈亏，无持仓显示--）
+const pnlEl = document.getElementById("s-pnl");
+if (pnlEl) {
+if (data.pnl != null && data.pnl !== 0 && data.margin > 0) {
+pnlEl.textContent = (data.pnl >= 0 ? "+" : "") + formatMoney(data.pnl);
+pnlEl.className = "svalue " + (data.pnl >= 0 ? "val-green" : "val-red");
+} else {
+pnlEl.textContent = "--";
+pnlEl.className = "svalue val-neutral";
+}
+}
+
+// 总盈亏（累计）
+const totalPnlEl = document.getElementById("s-total-pnl");
+if (totalPnlEl && data.totalPnl != null) {
+totalPnlEl.textContent = (data.totalPnl >= 0 ? "+" : "") + formatMoney(data.totalPnl);
+totalPnlEl.className = "svalue " + (data.totalPnl >= 0 ? "val-green" : "val-red");
+}
+  }
+  if (type === "signal") {
+    const sig = data.sig;
+    const cn = sig === "LONG" ? "📈 做多" : sig === "SHORT" ? "📉 做空" : "⏸ 观望";
+    const badge = document.getElementById("sig-badge");
+    badge.textContent = cn;
+    badge.className = "sig-badge sig-" + sig.toLowerCase();
+    const scoreStr = data.score != null && sig !== "HOLD" ? " / " + data.score : "";
+    const sigValEl = document.getElementById("s-signal");
+if (sigValEl) {
+sigValEl.textContent = cn + scoreStr;
+sigValEl.className = "svalue " + (sig === "LONG" ? "val-green" : sig === "SHORT" ? "val-red" : "val-neutral");
+}
+    
+    const mtf = document.getElementById("mtf-badge");
+    const t1h = data.trend1h || data.trend4h || "?";
+    if (sig !== "HOLD" && data.mtfOk != null) {
+      mtf.style.display = "";
+      mtf.textContent = data.mtfOk ? `✅ 1h→${t1h}` : `⚠ 1h→${t1h}`;
+      mtf.className = "mtf-badge " + (data.mtfOk ? "mtf-ok" : "mtf-warn");
+    } else {
+      mtf.style.display = "none";
+    }
+    if (sig !== "HOLD" && data.mtfOk) document.getElementById("cool-badge").style.display = "none";
+    updateScoreBar(sig !== "HOLD" ? data.score : null);
+    document.getElementById("sig-detail").textContent = `RSI:${data.rsi.toFixed(1)} EMA9:${Math.round(data.ef)} BB↑${Math.round(data.bbUp)} BB↓${Math.round(data.bbLo)}`;
+    document.getElementById("last-scan-time").textContent = "扫描 " + new Date(Date.now() + 8 * 3600 * 1000).toISOString().replace("T", " ").slice(11, 19);
+  }
+
+  // 行情模式显示
+  if (type === "marketMode") {
+    const modeBadge = document.getElementById("market-mode-badge");
+    if (modeBadge) {
+      const isOsc = data.mode === "oscillation";
+      modeBadge.textContent = isOsc ? "⬜ 震荡模式" : "📈 趋势模式";
+      modeBadge.style.background = isOsc ? "rgba(99,179,237,0.18)" : "rgba(104,211,145,0.15)";
+      modeBadge.style.color = isOsc ? "#63b3ed" : "#68d391";
+      modeBadge.style.display = "";
+    }
+  }
+
+  // ✅ AI决策状态条更新
+  if (type === "aiDecision") {
+    const bar = document.getElementById("ai-decision-bar");
+    const icon = document.getElementById("ai-decision-icon");
+    const text = document.getElementById("ai-decision-text");
+    const conf = document.getElementById("ai-decision-conf");
+    const time = document.getElementById("ai-decision-time");
+    if (bar) {
+      bar.style.display = "flex";
+      const isOpen = data.action === "open";
+      const dirCN = data.sig === "LONG" ? "做多" : data.sig === "SHORT" ? "做空" : "";
+      icon.textContent = isOpen ? (data.sig === "LONG" ? "✅📈" : "✅📉") : "❌";
+      text.textContent = isOpen
+        ? `AI决定开仓${dirCN} | ${data.reason || ""}`
+        : `AI跳过${dirCN ? " " + dirCN : ""} | ${data.reason || ""}`;
+      text.style.color = isOpen ? (data.sig === "LONG" ? "#68d391" : "#fc8181") : "#718096";
+      conf.textContent = `置信度 ${data.confidence || "--"}%`;
+      conf.style.color = (data.confidence || 0) >= 55 ? "#f7931a" : "#718096";
+      time.textContent = new Date(Date.now() + 8*3600*1000).toISOString().slice(11,19);
+    }
+  }
+
+if (type === "position") {
+const card = document.getElementById("position-card");
+const mp = document.getElementById("manual-panel");
+const statsBar = document.getElementById("stats-bar");
+const pnlCard = document.getElementById("pnl-card");
+if (!data) {
+card.style.display = "none";
+if (mp) mp.style.display = "none";
+stopPosDuration();
+document.getElementById("trail-active").style.display = "none";
+document.getElementById("breakeven-badge").style.display = "none";
+document.getElementById("pos-progress-wrap").style.display = "none";
+// ✅ 清除持仓高亮
+if (statsBar) { statsBar.classList.remove("has-pos-long", "has-pos-short"); }
+if (pnlCard) pnlCard.classList.remove("pnl-highlight");
+currentPos = null;
+loadChartKlines(chartTF);
+} else {
+card.style.display = "block";
+if (mp) mp.style.display = "block";
+// ✅ 持仓时stats-bar高亮
+if (statsBar) {
+  statsBar.classList.remove("has-pos-long", "has-pos-short");
+  statsBar.classList.add(data.dir === "LONG" ? "has-pos-long" : "has-pos-short");
+}
+if (pnlCard) pnlCard.classList.add("pnl-highlight");
+
+// 方向标签
+const badge = document.getElementById("pos-dir-badge");
+badge.textContent = data.dir === "LONG" ? "📈 做多" : "📉 做空";
+badge.className = "pos-dir " + (data.dir === "LONG" ? "dir-long" : "dir-short");
+card.style.borderLeftColor = data.dir === "LONG" ? "#38a169" : "#e53e3e";
+
+// 保本/移动止损标记
+document.getElementById("breakeven-badge").style.display = data._movedToBreakeven ? "" : "none";
+document.getElementById("trail-active").style.display = (getConfig().trailPct > 0) ? "" : "none";
+
+// 持仓时长
+if (!posOpenTime) startPosDuration(data.time);
+
+// 张数 + 名义仓位
+document.getElementById("pos-contracts").textContent = (data.contracts || "--") + " 张";
+const notionalEl = document.getElementById("pos-notional");
+if (notionalEl) notionalEl.textContent = data.notional ? data.notional.toFixed(2) + " U" : "--";
+
+// dataset 存原始价格（供图表用）
+const slEl = document.getElementById("pos-sl");
+const tpEl = document.getElementById("pos-tp");
+const entryEl = document.getElementById("pos-entry");
+if (slEl) slEl.dataset.price = data.sl;
+if (tpEl) tpEl.dataset.price = data.tp;
+if (entryEl) entryEl.dataset.price = data.entry;
+
+// 进度条
+const progressWrap = document.getElementById("pos-progress-wrap");
+const progressBar = document.getElementById("pos-progress-bar");
+if (progressWrap && data.sl && data.tp) {
+progressWrap.style.display = "block";
+const sl = parseFloat(data.sl);
+const tp = parseFloat(data.tp);
+const entry = parseFloat(data.entry);
+const cur = livePrice || entry;
+const isLong = data.dir === "LONG";
+
+// 左=低价，右=高价
+const leftPrice = Math.min(sl, tp);
+const rightPrice = Math.max(sl, tp);
+const range = rightPrice - leftPrice || 1;
+const pct = Math.max(2, Math.min(98, ((cur - leftPrice) / range) * 100));
+
+// 进度条填充
+const isProfit = isLong ? cur > entry : cur < entry;
+progressBar.style.width = pct + "%";
+progressBar.style.background = isProfit ? "#68d391" : "#fc8181";
+
+// 三角指示器位置
+const cursor = document.getElementById("progress-cursor");
+if (cursor) cursor.style.left = pct + "%";
+
+// 当前价
+const curPriceEl = document.getElementById("progress-cur-price");
+if (curPriceEl) curPriceEl.textContent = cur.toLocaleString();
+
+// 当前盈亏
+const curPnlEl = document.getElementById("progress-cur-pnl");
+if (curPnlEl) {
+const pPct = data.pPct || 0;
+curPnlEl.textContent = (pPct >= 0 ? "+" : "") + pPct.toFixed(2) + "%";
+curPnlEl.style.color = pPct >= 0 ? "#68d391" : "#fc8181";
+}
+
+// 开仓价
+const entryPriceEl = document.getElementById("progress-entry-price");
+if (entryPriceEl) entryPriceEl.textContent = entry.toFixed(2);
+
+// 左侧（做多=止损红，做空=止盈绿）
+const leftLabel = document.getElementById("progress-left-label");
+const leftPriceEl = document.getElementById("progress-left-price");
+const leftBox = document.getElementById("progress-left-box");
+if (isLong) {
+if (leftLabel) { leftLabel.textContent = "▼ 止损价"; leftLabel.style.color = "#fc8181"; }
+if (leftPriceEl) { leftPriceEl.textContent = sl.toFixed(2); leftPriceEl.style.color = "#fc8181"; }
+if (leftBox) { leftBox.style.borderColor = "#e53e3e55"; leftBox.style.background = "#2d151555"; }
+} else {
+if (leftLabel) { leftLabel.textContent = "▼ 止盈价"; leftLabel.style.color = "#68d391"; }
+if (leftPriceEl) { leftPriceEl.textContent = tp.toFixed(2); leftPriceEl.style.color = "#68d391"; }
+if (leftBox) { leftBox.style.borderColor = "#38a16955"; leftBox.style.background = "#1a2d1a55"; }
+}
+
+// 右侧（做多=止盈绿，做空=止损红）
+const rightLabel = document.getElementById("progress-right-label");
+const rightPriceEl = document.getElementById("progress-right-price");
+const rightBox = document.getElementById("progress-right-box");
+if (isLong) {
+if (rightLabel) { rightLabel.textContent = "▲ 止盈价"; rightLabel.style.color = "#68d391"; }
+if (rightPriceEl) { rightPriceEl.textContent = tp.toFixed(2); rightPriceEl.style.color = "#68d391"; }
+if (rightBox) { rightBox.style.borderColor = "#38a16955"; rightBox.style.background = "#1a2d1a55"; }
+} else {
+if (rightLabel) { rightLabel.textContent = "▲ 止损价"; rightLabel.style.color = "#fc8181"; }
+if (rightPriceEl) { rightPriceEl.textContent = sl.toFixed(2); rightPriceEl.style.color = "#fc8181"; }
+if (rightBox) { rightBox.style.borderColor = "#e53e3e55"; rightBox.style.background = "#2d151555"; }
+}
+
+// 底部方向标签
+const barLeft = document.getElementById("progress-bar-left-label");
+const barRight = document.getElementById("progress-bar-right-label");
+if (barLeft) barLeft.textContent = isLong ? "◀ 止损方向" : "◀ 止盈方向";
+if (barRight) barRight.textContent = isLong ? "止盈方向 ▶" : "止损方向 ▶";
+}
+
+// 保留原始止损止盈作为进度条固定区间
+if (!currentPos || currentPos.entry !== data.entry) {
+// 新开仓：记录原始止损止盈
+data.initSL = data.sl;
+data.initTP = data.tp;
+} else {
+// 已有持仓：保留原始区间，只更新其他数据
+data.initSL = currentPos.initSL;
+data.initTP = currentPos.initTP;
+}
+currentPos = data;
+drawChart();
+}
+}
+
+
+  if (type === "trade") {
+    if (data.result === "open") beep("open");
+    if (data.result === "win") { beep("win"); notify("✅ 止盈！", `${data.dir} +${data.pPct}% (+${data.pnl}U)`); }
+    if (data.result === "loss") { beep("loss"); notify("❌ 止损！", `${data.dir} ${data.pPct}% (${data.pnl}U)`); }
+  }
+
+  if (type === "stopped") handleBotStopped();
+});
+function renderHistory(records) {
+  const closed = records.filter(t => t.result === "win" || t.result === "loss");
+  const wins = closed.filter(t => t.result === "win");
+  const losses = closed.filter(t => t.result === "loss");
+  const totalPnl = closed.reduce((s, t) => s + (t.pnl || 0), 0);
+  const avgWin = wins.length ? wins.reduce((s, t) => s + (t.pnl || 0), 0) / wins.length : 0;
+  const avgLoss = losses.length ? losses.reduce((s, t) => s + (t.pnl || 0), 0) / losses.length : 0;
+  const wr = closed.length ? (wins.length / closed.length * 100) : 0;
+
+  document.getElementById("hs-total").textContent = closed.length;
+
+  const wrEl = document.getElementById("hs-winrate");
+  wrEl.textContent = wr.toFixed(1) + "%";
+  wrEl.style.color = wr >= 50 ? "#68d391" : "#fc8181";
+
+  const pnlEl = document.getElementById("hs-pnl");
+  pnlEl.textContent = (totalPnl >= 0 ? "+" : "") + totalPnl.toFixed(2) + " U";
+  pnlEl.style.color = totalPnl >= 0 ? "#68d391" : "#fc8181";
+
+  document.getElementById("hs-avg-win").textContent = "+" + avgWin.toFixed(2) + " U";
+  const avgLossEl = document.getElementById("hs-avg-loss");
+  avgLossEl.textContent = avgLoss.toFixed(2) + " U";
+  avgLossEl.style.color = "#fc8181";
+
+  // 同步胜率到顶部 stats-bar
+  const swEl = document.getElementById("s-winrate");
+  if (swEl) { swEl.textContent = wr.toFixed(1) + "%"; swEl.className = "svalue " + (wr >= 50 ? "val-green" : "val-red"); }
+
+  const tbody = document.getElementById("hist-tbody");
+  if (!closed.length) {
+    tbody.innerHTML = "<tr><td colspan='9' style='padding:30px;text-align:center;color:#4a5568;font-size:12px;'>暂无交易记录</td></tr>";
+    return;
+  }
+  tbody.innerHTML = "";
+  for (const r of [...records].reverse()) {
+    if (r.result !== "win" && r.result !== "loss") continue;
+    const isWin = r.result === "win";
+    const pnlColor = isWin ? "#68d391" : "#fc8181";
+    const dir = r.dir === "LONG"
+      ? "<span style='background:#1a3a2a;color:#68d391;padding:2px 8px;border-radius:4px;font-size:11px;'>多</span>"
+      : "<span style='background:#3a1a1a;color:#fc8181;padding:2px 8px;border-radius:4px;font-size:11px;'>空</span>";
+    const fmtTime = (ts) => ts ? new Date(ts + 8 * 3600 * 1000).toISOString().slice(5, 16).replace("T", " ") : "--";
+    const openDt = fmtTime(r.openTime || r.time);
+    const closeDt = fmtTime(r.closeTime || r.time);
+    const pPct = r.pPct != null ? (r.pPct >= 0 ? "+" : "") + r.pPct.toFixed(2) + "%" : "--";
+    const pnl = r.pnl != null ? (r.pnl >= 0 ? "+" : "") + r.pnl.toFixed(2) + " U" : "--";
+    tbody.innerHTML +=
+      "<tr style='border-top:1px solid #1a1d2e;' onmouseover=\"this.style.background='#1e2235'\" onmouseout=\"this.style.background=''\">" +
+      "<td style='padding:7px 10px;color:#718096;font-size:11px;white-space:nowrap;'>" + openDt + "</td>" +
+      "<td style='padding:7px 6px;color:#4a5568;font-size:11px;white-space:nowrap;'>" + closeDt + "</td>" +
+      "<td style='padding:7px 6px;text-align:center;'>" + dir + "</td>" +
+      "<td style='padding:7px 6px;text-align:center;color:#a0aec0;font-size:11px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'>" + (r.reason || "--") + "</td>" +
+      "<td style='padding:7px 6px;text-align:right;color:#e2e8f0;'>" + (r.entry ? r.entry.toFixed(1) : "--") + "</td>" +
+      "<td style='padding:7px 6px;text-align:right;color:#e2e8f0;'>" + (r.exit ? r.exit.toFixed(1) : "--") + "</td>" +
+      "<td style='padding:7px 6px;text-align:right;color:#a0aec0;'>" + (r.contracts || "--") + "</td>" +
+      "<td style='padding:7px 6px;text-align:right;color:" + pnlColor + ";font-weight:600;'>" + pPct + "</td>" +
+      "<td style='padding:7px 10px;text-align:right;color:" + pnlColor + ";font-weight:700;'>" + pnl + "</td>" +
+      "</tr>";
+  }
+}
+
+function drawPnlChart(records) {
+  const canvas = document.getElementById("pnl-chart");
+  if (!canvas) return;
+  const W = canvas.parentElement.clientWidth - 20, H = 80;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, W, H);
+  const closed = records.filter(r => r.result !== "open" && r.pnl != null);
+  if (closed.length < 2) {
+    ctx.fillStyle = "#4a5568"; ctx.font = "11px sans-serif";
+    ctx.fillText("暂无足够数据（需2条以上）", 8, H / 2 + 5);
+    return;
+  }
+  let cum = 0;
+  const pts = [0, ...closed.map(r => { cum += r.pnl; return cum; })];
+  const mn = Math.min(...pts), mx = Math.max(...pts), range = mx - mn || 1, pad = 4;
+  const toX = i => (i / (pts.length - 1)) * W;
+  const toY = v => H - pad - ((v - mn) / range) * (H - pad * 2);
+  ctx.strokeStyle = "#2d374866"; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(0, toY(0)); ctx.lineTo(W, toY(0)); ctx.stroke();
+  ctx.setLineDash([]);
+  const fin = pts[pts.length - 1];
+  ctx.strokeStyle = fin >= 0 ? "#68d391" : "#fc8181"; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  pts.forEach((v, i) => i === 0 ? ctx.moveTo(toX(i), toY(v)) : ctx.lineTo(toX(i), toY(v)));
+  ctx.stroke();
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+  const fg = ctx.createLinearGradient(0, 0, 0, H);
+  fg.addColorStop(0, fin >= 0 ? "#68d39133" : "#fc818133");
+  fg.addColorStop(1, "#00000000");
+  ctx.fillStyle = fg; ctx.fill();
+}
+
+function exportCSV() { ipcRenderer.send("history:exportCSV"); }
+
+function clearHistory() {
+  if (!confirm("确认清空所有交易记录？")) return;
+  ipcRenderer.send("history:clear");
+  appendLog("warn", "🗑 记录已清空");
+}
+
+function manualClose(r) {
+  if (!confirm(`确认平仓 ${r * 100}%？`)) return;
+  ipcRenderer.send("trade:partialClose", r);
+  appendLog("warn", `手动平仓 ${r * 100}%`);
+}
+
+function updateTP() {
+const v = parseFloat(document.getElementById("input-tp").value);
+if (isNaN(v) || v <= 0) { alert("请输入有效止盈价格"); return; }
+// ✅ 修复：同步发送到后端引擎
+ipcRenderer.send("trade:setTP", v);
+const el = document.getElementById("pos-tp");
+if (el) {
+el.dataset.price = v;
+el.textContent = v;
+}
+document.getElementById("input-tp").value = "";
+appendLog("open", `止盈→${v}`);
+drawChart();
+}
+
+function updateSL() {
+const v = parseFloat(document.getElementById("input-sl").value);
+if (isNaN(v) || v <= 0) { alert("请输入有效止损价格"); return; }
+ipcRenderer.send("trade:setSL", v);
+const el = document.getElementById("pos-sl");
+el.dataset.price = v; // ← 加这行
+el.textContent = v;
+document.getElementById("input-sl").value = "";
+appendLog("open", `止损→${v}`);
+drawChart();
+}
+
+function syncInput(rid, nid) { document.getElementById(nid).value = document.getElementById(rid).value; }
+
+function syncRange(nid, rid) {
+  const v = parseFloat(document.getElementById(nid).value);
+  const r = document.getElementById(rid);
+  if (!isNaN(v)) r.value = Math.min(Math.max(v, parseFloat(r.min)), parseFloat(r.max));
+}
+
+function startCountdown() {
+  nextScanSec = 300;
+  if (nextScanTimer) clearInterval(nextScanTimer);
+  nextScanTimer = setInterval(() => {
+    nextScanSec--;
+    if (nextScanSec <= 0) nextScanSec = 300;
+    const m = Math.floor(nextScanSec / 60), s = nextScanSec % 60;
+    document.getElementById("s-next").textContent = `${m}:${String(s).padStart(2, "0")}`;
+  }, 1000);
+}
+
+function resetCountdown() { nextScanSec = 300; }
+
+function appendLog(level, msg) {
+  const box = document.getElementById("log-box"), line = document.createElement("div");
+  const cat = (level === "win" || level === "loss" || level === "open") ? level : level === "scan" ? "scan" : (level === "error" || level === "warn") ? level : "info";
+  line.dataset.cat = cat;
+  line.className = "log-" + level;
+  line.textContent = msg;
+  const show = logFilter === "all"
+    || (logFilter === "scan" && cat === "scan")
+    || (logFilter === "trade" && (cat === "open" || cat === "win" || cat === "loss"))
+    || (logFilter === "error" && (cat === "error" || cat === "warn"));
+  if (!show) line.classList.add("log-hidden");
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+  while (box.children.length > 600) box.removeChild(box.firstChild);
+}
+// ══════════════════════════════════════════
+// AI 对话功能
+// ══════════════════════════════════════════
+var aiChatHistory = [];
+var aiTyping = false;
+
+function getMarketContext() {
+var price = (document.getElementById("price-display")?.textContent || "").replace(/[^\d.]/g, "") || "未知";
+var sigEl = document.getElementById("sig-detail")?.textContent || "等待扫描";
+var balanceText = document.getElementById("s-balance")?.textContent || "--";
+var winrate = document.getElementById("hs-winrate")?.textContent || "--";
+var cfg = getConfig();
+var posInfo = "无持仓";
+if (botRunning) {
+var posCard = document.getElementById("position-card");
+if (posCard && posCard.style.display !== "none") {
+var posDir = document.getElementById("pos-dir-badge")?.textContent || "";
+var posPct = document.getElementById("pos-pnl")?.textContent || "";
+posInfo = "有持仓 " + posDir + " 浮动盈亏" + posPct;
+}
+}
+return "【机器人状态】" + (botRunning ? "运行中" : "未启动，无任何持仓") + "\n" +
+"当前价格:" + price + " USDT\n" +
+"账户余额:" + balanceText + " | 胜率:" + winrate + "\n" +
+"最新信号:" + sigEl + "\n" +
+"持仓状态:" + posInfo + "\n" +
+"策略参数: 止盈" + cfg.takePct + "% 止损" + cfg.stopPct +
+"% 杠杆" + cfg.leverage + "x 仓位" + cfg.posRatio + "%\n" +
+"趋势模式:" + (cfg.trendMode === "1h" ? "1h保守" : cfg.trendMode === "30m" ? "30m激进" : "ADX自适应");
+}
+
+function askAI(question) {
+  document.getElementById("ai-input").value = question;
+  sendAIChat();
+}
+
+async function sendAIChat() {
+  if (aiTyping) return;
+  var input = document.getElementById("ai-input");
+  var userMsg = input.value.trim();
+  if (!userMsg) return;
+  input.value = "";
+  appendAIMessage("user", userMsg);
+  aiChatHistory.push({ role: "user", content: userMsg });
+  if (aiChatHistory.length > 20) aiChatHistory = aiChatHistory.slice(-20);
+  var typingId = appendAITyping();
+  aiTyping = true;
+  document.getElementById("ai-send-btn").disabled = true;
+  document.getElementById("ai-send-btn").textContent = "...";
+  try {
+    var context = getMarketContext();
+    var reply = await ipcRenderer.invoke("ai:chat", {
+history: aiChatHistory,
+context: context,
+imageBase64: aiImageBase64,
+fileContent: aiFileContent, // ← 新增
+fileName: aiFileName // ← 新增
+});
+if (aiImageBase64) { clearAiImage(); }
+if (aiFileContent) { clearAiFile(); }
+    removeAITyping(typingId);
+    appendAIMessage("assistant", reply);
+    aiChatHistory.push({ role: "assistant", content: reply });
+  } catch (e) {
+    removeAITyping(typingId);
+    appendAIMessage("error", "AI请求失败: " + e.message);
+  } finally {
+    aiTyping = false;
+    document.getElementById("ai-send-btn").disabled = false;
+    document.getElementById("ai-send-btn").textContent = "发送";
+  }
+}
+
+function appendAIMessage(role, content) {
+  var box = document.getElementById("ai-chat-box");
+  var wrap = document.createElement("div");
+  var time = new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(11, 16);
+  if (role === "user") {
+    wrap.style.cssText = "display:flex;justify-content:flex-end;margin:4px 0;";
+    wrap.innerHTML = "<div style='max-width:75%;background:#1a2d3a;border:1px solid #2d4a6e;border-radius:12px 12px 2px 12px;padding:9px 13px;font-size:13px;color:#e2e8f0;line-height:1.6;word-break:break-word;'>" + escapeHtml(content) + "</div>";
+  } else if (role === "assistant") {
+    wrap.style.cssText = "display:flex;gap:8px;align-items:flex-start;margin:4px 0;";
+    wrap.innerHTML = "<div style='width:28px;height:28px;background:#f7931a22;border:1px solid #f7931a55;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;'>🤖</div>" +
+      "<div style='flex:1;'>" +
+      "<div style='font-size:10px;color:#4a5568;margin-bottom:4px;'>千问 3 MXA · " + time + "</div>" +
+      "<div style='background:#1a1d2e;border:1px solid #2d3748;border-radius:2px 12px 12px 12px;padding:9px 13px;font-size:13px;color:#e2e8f0;line-height:1.8;word-break:break-word;'>" + renderMarkdown(content) + "</div>" +
+      "</div>";
+  } else {
+    wrap.innerHTML = "<div style='color:#fc8181;font-size:12px;padding:4px 8px;'>" + content + "</div>";
+  }
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
+}
+
+function appendAITyping() {
+  var box = document.getElementById("ai-chat-box");
+  var id = "typing-" + Date.now();
+  var wrap = document.createElement("div");
+  wrap.id = id;
+  wrap.style.cssText = "display:flex;gap:8px;align-items:center;margin:4px 0;";
+  wrap.innerHTML = "<div style='width:28px;height:28px;background:#f7931a22;border:1px solid #f7931a55;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;'>🤖</div>" +
+    "<div style='background:#1a1d2e;border:1px solid #2d3748;border-radius:12px;padding:6px 14px;font-size:18px;letter-spacing:4px;'>···</div>";
+  box.appendChild(wrap);
+  box.scrollTop = box.scrollHeight;
+  return id;
+}
+
+function removeAITyping(id) {
+  var el = document.getElementById(id);
+  if (el) el.remove();
+}
+// 图片上传相关
+var aiImageBase64 = null;
+
+function onAiImageSelected(input) {
+if (!input.files || !input.files[0]) return;
+const file = input.files[0];
+const reader = new FileReader();
+reader.onload = function(e) {
+aiImageBase64 = e.target.result; // data:image/xxx;base64,...
+document.getElementById("ai-preview-img").src = aiImageBase64;
+document.getElementById("ai-image-preview").style.display = "flex";
+};
+reader.readAsDataURL(file);
+}
+
+function clearAiImage() {
+aiImageBase64 = null;
+document.getElementById("ai-image-input").value = "";
+document.getElementById("ai-image-preview").style.display = "none";
+}
+var aiFileContent = null;
+var aiFileName = null;
+
+function onAiFileSelected(input) {
+if (!input.files || !input.files[0]) return;
+const file = input.files[0];
+aiFileName = file.name;
+const reader = new FileReader();
+reader.onload = function(e) {
+aiFileContent = e.target.result;
+document.getElementById("ai-file-name").textContent = aiFileName;
+document.getElementById("ai-file-preview").style.display = "flex";
+};
+reader.readAsText(file, "utf-8");
+}
+
+function clearAiFile() {
+aiFileContent = null;
+aiFileName = null;
+document.getElementById("ai-file-input").value = "";
+document.getElementById("ai-file-preview").style.display = "none";
+}
+
+function clearAIChat() {
+  document.getElementById("ai-chat-box").innerHTML = "<div style='text-align:center;color:#4a5568;font-size:12px;padding:20px 0;'>🤖 对话已清空，千问3随时待命</div>";
+  aiChatHistory = [];
+}
+
+// ✅ 只保留一个版本（带 map 对象）
+function escapeHtml(str) {
+  var t = str;
+  t = t.replace(/&/g, '&amp;');
+  t = t.replace(/</g, '&lt;');
+  t = t.replace(/>/g, '&gt;');
+  var br = String.fromCharCode(60) + 'br' + String.fromCharCode(62);
+  t = t.replace(/\n/g, br);
+  return t;
+}
+
+function renderMarkdown(text) {
+  var t = text;
+  var br = String.fromCharCode(60) + 'br' + String.fromCharCode(62);
+  t = t.replace(/^### (.+)$/gm, '<div style="color:#f7931a;font-weight:700;font-size:13px;margin:8px 0 4px;">$1</div>');
+  t = t.replace(/^## (.+)$/gm, '<div style="color:#f7931a;font-weight:700;font-size:14px;margin:10px 0 4px;">$1</div>');
+  t = t.replace(/^# (.+)$/gm, '<div style="color:#f7931a;font-weight:700;font-size:15px;margin:10px 0 4px;">$1</div>');
+  t = t.replace(/\*\*(.+?)\*\*/g, '<b style="color:#fbd38d;">$1</b>');
+  t = t.replace(/\*(.+?)\*/g, '<i style="color:#a0aec0;">$1</i>');
+  t = t.replace(/^[-•] (.+)$/gm, '<div style="padding:2px 0 2px 12px;border-left:2px solid #f7931a33;">&#9658; $1</div>');
+  t = t.replace(/^\d+\. (.+)$/gm, '<div style="padding:2px 0 2px 12px;color:#e2e8f0;">$1</div>');
+  t = t.replace(/`(.+?)`/g, '<code style="background:#0f1117;padding:1px 5px;border-radius:3px;color:#68d391;font-family:Consolas;">$1</code>');
+  t = t.replace(/^---+$/gm, '<hr style="border:none;border-top:1px solid #2d3748;margin:8px 0;">');
+  t = t.replace(/\n/g, br);
+  return t;
+}
+
+function clearLog() { document.getElementById("log-box").innerHTML = ""; }
+
+function resetDefaults() {
+  if (!confirm(`确认恢复默认参数？\n止盈${DEFAULTS.takePct}% / 止损${DEFAULTS.stopPct}% / 杠杆${DEFAULTS.leverage}x / 仓位${DEFAULTS.posRatio}% / 风控${DEFAULTS.maxLoss}% / ATR${DEFAULTS.atrMult} / 止盈1${DEFAULTS.tp1Pct}% / 止盈2${DEFAULTS.tp2Pct}% / 移动${DEFAULTS.trailPct}%`)) return;
+  document.getElementById("capital").value = DEFAULTS.capital;
+  ["takePct", "stopPct", "leverage", "atrMult", "tp1Pct", "tp2Pct", "trailPct", "volMult", "posRatio", "maxLoss"].forEach(id => {
+    document.getElementById(id).value = DEFAULTS[id];
+    document.getElementById(id + "Num").value = DEFAULTS[id];
+  });
+  setTrendMode('1h');
+  updateMath();
+  appendLog("info", `↺ 参数已恢复默认: 止盈${DEFAULTS.takePct}% 止损${DEFAULTS.stopPct}% 杠杆${DEFAULTS.leverage}x 仓位${DEFAULTS.posRatio}% 风控${DEFAULTS.maxLoss}%`);
+}
+
+function onDryRunToggle() {
+const d = document.getElementById("dryRun").checked;
+localStorage.setItem("cfg_dryRun", d ? "1" : "0");
+const i = document.getElementById("capital");
+const capitalRow = i.closest(".form-row") || i.parentElement;
+i.disabled = !d;
+i.style.opacity = d ? "1" : "0.4";
+i.style.color = d ? "#e2e8f0" : "#718096";
+// 实盘时显示提示
+let hint = document.getElementById("capital-realmode-hint");
+if (!hint) {
+hint = document.createElement("div");
+hint.id = "capital-realmode-hint";
+hint.style.cssText = "font-size:11px;color:#4a5568;margin-top:3px;";
+hint.textContent = "← 实盘模式自动从API读取";
+capitalRow.appendChild(hint);
+}
+hint.style.display = d ? "none" : "block";
+}
+
+function onAiDrivenToggle() {
+  const on = document.getElementById("aiDriven").checked;
+  document.getElementById("ai-driven-hint").style.display = on ? "block" : "none";
+  if (on && !botRunning) appendLog("warn", "⚠️ AI主导模式已开启，请点击启动机器人后生效");
+  else appendLog("info", on ? "🤖 AI主导模式已开启 | AI将主动分析并控制交易" : "🤖 AI主导模式已关闭 | 恢复策略+AI过滤模式");
+}
+
+function toggleAdvanced() {
+  var el = document.getElementById("advanced-params");
+  var arrow = document.getElementById("advanced-arrow");
+  var show = el.style.display === "none";
+  el.style.display = show ? "block" : "none";
+  arrow.textContent = show ? "▲ 高级" : "▼ 高级";
+}
+function toggleManual() {
+const content = document.getElementById("manual-content");
+const arrow = document.getElementById("manual-arrow");
+const isOpen = content.style.display !== "none";
+content.style.display = isOpen ? "none" : "block";
+arrow.textContent = isOpen ? "▼" : "▲";
+}
+function setAiStatus(status) {
+  const dot = document.getElementById("ai-dot"), txt = document.getElementById("ai-dot-text");
+  if (!dot || !txt) return;
+  if (status === "ok") { dot.style.background = "#68d391"; dot.style.boxShadow = "0 0 6px #68d391"; txt.textContent = "AI已连接"; txt.style.color = "#68d391"; }
+  else if (status === "checking") { dot.style.background = "#f6ad55"; dot.style.boxShadow = "0 0 6px #f6ad55"; txt.textContent = "AI连接中..."; txt.style.color = "#f6ad55"; }
+  else if (status === "error") { dot.style.background = "#fc8181"; dot.style.boxShadow = "none"; txt.textContent = "AI离线"; txt.style.color = "#fc8181"; }
+  else { dot.style.background = "#4a5568"; dot.style.boxShadow = "none"; txt.textContent = "AI未连接"; txt.style.color = "#718096"; }
+}
+
+async function checkAiConnection() {
+  setAiStatus("checking");
+  try {
+    const result = await ipcRenderer.invoke("ai:chat", { history: [{ role: "user", content: "ok" }], context: "" });
+    setAiStatus(result ? "ok" : "error");
+  } catch (e) { setAiStatus("error"); }
+}
+
+function updateMath() {
+const cap = parseFloat(document.getElementById("capital").value) || 500,
+tp = parseFloat(document.getElementById("takePct").value),
+sp = parseFloat(document.getElementById("stopPct").value),
+lev = parseInt(document.getElementById("leverage").value),
+posR = parseInt(document.getElementById("posRatio").value) / 100,
+sz = cap * posR;
+const winU = sz * lev * tp / 100;
+const lossU = sz * lev * sp / 100;
+const feeU = sz * lev * 0.0005 * 2;
+const winNet = winU - feeU, lossNet = lossU + feeU;
+const avgPer = winU * 0.5 - lossU * 0.5 - feeU;
+const monthly = avgPer * 30;
+
+// ★ 统一用 formatMoney 显示，支持 CNY 切换
+const fm = (v) => formatMoney(v);
+const fmPos = (v) => (v >= 0 ? "+" : "") + fm(v);
+
+document.getElementById("math-info").innerHTML =
+'<div style="display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px;">' +
+'<span style="color:#718096;">账户资金</span><span style="color:#e2e8f0;font-weight:600;">' + fm(cap) + '</span>' +
+'<span style="color:#718096;">实际投入</span><span style="color:#f7931a;font-weight:600;">' + fm(cap * posR) + ' (' + (posR * 100).toFixed(0) + '%)</span>' +
+'<span style="color:#718096;">名义仓位</span><span style="color:#f7931a;font-weight:600;">' + fm(sz * lev) + ' (' + lev + 'x)</span>' +
+'<span style="color:#2d3748;grid-column:1/-1;border-top:1px solid #2d3748;margin:3px 0;"></span>' +
+'<span style="color:#718096;">止盈 +' + tp + '%</span><span style="color:#68d391;font-weight:600;">+' + fm(winU) + '</span>' +
+'<span style="color:#718096;">止损 -' + sp + '%</span><span style="color:#fc8181;font-weight:600;">-' + fm(lossU) + '</span>' +
+'<span style="color:#718096;">手续费</span><span style="color:#a0aec0;">~' + fm(feeU) + ' (0.1%)</span>' +
+'<span style="color:#718096;">净盈利</span><span style="color:#68d391;font-weight:700;">+' + fm(winNet) + '</span>' +
+'<span style="color:#718096;">净亏损</span><span style="color:#fc8181;font-weight:700;">-' + fm(lossNet) + '</span>' +
+'<span style="color:#2d3748;grid-column:1/-1;border-top:1px solid #2d3748;margin:3px 0;"></span>' +
+'<span style="color:#718096;">盈亏比</span><span style="color:#e2e8f0;font-weight:600;">1 : ' + (tp / sp).toFixed(1) + '</span>' +
+'<span style="color:#718096;">最低胜率</span><span style="color:' + (lossNet / (winNet + lossNet) * 100 < 40 ? "#68d391" : "#fbd38d") + ';font-weight:600;">&gt;' + (lossNet / (winNet + lossNet) * 100).toFixed(1) + '%</span>' +
+'<span style="color:#2d3748;grid-column:1/-1;border-top:1px solid #2d3748;margin:3px 0;"></span>' +
+'<span style="color:#718096;">每单均值</span><span style="color:' + (avgPer >= 0 ? "#68d391" : "#fc8181") + ';font-weight:600;">' + fmPos(avgPer) + '</span>' +
+'<span style="color:#718096;">月均预期</span><span style="color:' + (monthly >= 0 ? "#68d391" : "#fc8181") + ';font-weight:700;font-size:13px;">' + fmPos(monthly) + '</span>' +
+'</div>';
+}
+
+// ✅ 修复：传入 symbol
+let _pricePoller = null;
+async function startPricePoller() {
+  if (_pricePoller) return;
+  // 立即获取一次
+  try {
+    const p = await ipcRenderer.invoke("price:get", { symbol: currentSymbol || "BTC_USDT" });
+    if (p) {
+      document.getElementById("price-display").innerHTML = `${Number(p).toLocaleString()} <span>USDT</span>`;
+      prevPrice = p;
+      updateLiveChart(p);
+    }
+  } catch (e) {}
+  _pricePoller = setInterval(async () => {
+    if (botRunning) return;
+    try {
+      const p = await ipcRenderer.invoke("price:get", { symbol: currentSymbol || "BTC_USDT" });
+      if (p) {
+        document.getElementById("price-display").innerHTML = `${Number(p).toLocaleString()} <span>USDT</span>`;
+        if (prevPrice !== null) flashPrice(p >= prevPrice);
+        prevPrice = p;
+        updateLiveChart(p);
+      }
+    } catch (e) {}
+  }, 2000);
+}
+
+// 实时获取美元汇率
+async function fetchExchangeRate() {
+  try {
+    const r = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+    const data = await r.json();
+    if (data.rates && data.rates.CNY) {
+      exchangeRate = data.rates.CNY;
+      appendLog("info", "💱 汇率已更新: 1 USD = " + exchangeRate.toFixed(4) + " CNY");
+    }
+  } catch (e) { /* 失败用默认值 7.25 */ }
+}
+
+// ══════════════════════════════════════════
+// 初始化
+// ══════════════════════════════════════════
+window.addEventListener("resize", () => { drawChart(); });
+
+// ✅ window:ready 事件：主进程页面加载完成后触发，此时布局已稳定，重新加载K线
+ipcRenderer.on("window:ready", () => {
+  setTimeout(() => { loadChartKlines(chartTF); }, 200);
+});
+if (typeof Notification !== "undefined" && Notification.permission === "default") Notification.requestPermission();
+
+ipcRenderer.send("config:load");
+ipcRenderer.send("history:load");
+updateMath();
+// 最后执行：模拟模式下恢复上次余额，覆盖config:loaded的值
+
+setTrendMode('1h');
+// ✅ 延迟加载K线，等待Electron窗口布局完成后再渲染
+setTimeout(() => { loadChartKlines("1m"); }, 300);
+startPricePoller();
+fetchExchangeRate();
+setInterval(fetchExchangeRate, 3600000);
+setTimeout(() => checkAiConnection(), 2000);
+appendLog("info", "v16 就绪 | 策略: 趋势/震荡双模式 | 趋势:EMA差0.07% | 震荡:RSI<32/>68反转 | AI辅助开启");
+appendLog("info", "图表: 滚轮缩放 · 拖拽平移 · 持仓线(蓝=入场 绿=止盈 红=止损)");
+// ✅ 实时更新持仓进度条和箭头（由顶部价格事件驱动，每500ms）
+function updatePositionProgress(price, pPct) {
+if (!currentPos) return;
+const { sl, tp, entry, dir } = currentPos;
+if (!sl || !tp || !entry) return;
+
+const posCard = document.getElementById("position-card");
+if (!posCard || posCard.style.display === "none") return;
+
+const initSL = parseFloat(currentPos.initSL || sl);
+const initTP = parseFloat(currentPos.initTP || tp);
+const entryVal = parseFloat(entry);
+const slDist = Math.abs(entryVal - initSL);
+const tpDist = Math.abs(initTP - entryVal);
+
+let pct;
+if (dir === "LONG") {
+if (price >= entryVal) {
+pct = 50 + ((price - entryVal) / tpDist) * 50;
+} else {
+pct = 50 - ((entryVal - price) / slDist) * 50;
+}
+} else {
+if (price <= entryVal) {
+pct = 50 + ((entryVal - price) / tpDist) * 50;
+} else {
+pct = 50 - ((price - entryVal) / slDist) * 50;
+}
+}
+pct = Math.max(1, Math.min(99, pct));
+// 进度条颜色和宽度
+const bar = document.getElementById("pos-progress-bar");
+const isProfit = dir === "LONG" ? price > entry : price < entry;
+if (bar) {
+bar.style.width = pct + "%";
+bar.style.background = isProfit ? "#68d391" : "#fc8181";
+}
+
+// 三角指示器位置
+const cursor = document.getElementById("progress-cursor");
+if (cursor) cursor.style.left = pct + "%";
+if (cursor) cursor.style.left = `calc(${pct}% - 6px)`;
+// 当前价格显示
+const curPriceEl = document.getElementById("progress-cur-price");
+if (curPriceEl) curPriceEl.textContent = price.toLocaleString();
+
+// 实时盈亏%
+const curPnlEl = document.getElementById("progress-cur-pnl");
+if (curPnlEl) {
+curPnlEl.textContent = (pPct >= 0 ? "+" : "") + pPct.toFixed(2) + "%";
+curPnlEl.style.color = pPct >= 0 ? "#68d391" : "#fc8181";
+}
+
+// 同步更新 currentPos 中的 pPct（供图表等其他地方使用）
+currentPos.pPct = pPct;
+
+// ✅ P2优化：K线图节流，最多每1000ms重绘一次，减少CPU占用
+const now = Date.now();
+if (!window._lastChartDraw || now - window._lastChartDraw > 1000) {
+  window._lastChartDraw = now;
+  drawChart();
+}
+}
+</script>
+</body>
+
+</html>
