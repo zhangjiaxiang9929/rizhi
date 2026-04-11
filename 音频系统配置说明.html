@@ -5,398 +5,629 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数字调音台信号分配与使用说明</title>
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-text: #2c3e50;
+            --light-text: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            line-height: 1.8;
+            color: var(--dark-text);
+            background-color: var(--light-bg);
+            padding: 20px;
+        }
+
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--light-text);
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .content {
             padding: 30px;
         }
-        h1, h2, h3 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-        h1 {
-            text-align: center;
-            color: #2980b9;
-        }
+
         .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            border-left: 4px solid #3498db;
+            margin-bottom: 40px;
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--secondary-color);
+            transition: transform 0.3s ease;
         }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            margin: 20px 0 15px;
+            font-size: 1.4rem;
+        }
+
         .table-container {
             overflow-x: auto;
             margin: 20px 0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            background-color: white;
         }
+
         th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
+            padding: 14px 18px;
             text-align: left;
+            border-bottom: 1px solid #e0e0e0;
         }
+
         th {
-            background-color: #3498db;
-            color: white;
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            font-weight: 600;
         }
+
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #f8f9fa;
         }
+
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+
         .highlight {
             background-color: #fff3cd;
-            font-weight: bold;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
+
         .warning {
             background-color: #fff8e1;
             border-left: 4px solid #ffc107;
             padding: 15px;
             margin: 20px 0;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
         }
+
         .success {
             background-color: #e8f5e9;
             border-left: 4px solid #4caf50;
             padding: 15px;
             margin: 20px 0;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
         }
+
         .diagram {
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 0;
             font-size: 14px;
             color: #666;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: var(--border-radius);
         }
+
+        .diagram pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
         .btn {
             display: inline-block;
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
+            padding: 12px 24px;
+            background-color: var(--secondary-color);
+            color: var(--light-text);
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 30px;
             border: none;
             cursor: pointer;
             margin: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+
         .btn:hover {
             background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .github-link {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .github-link a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .github-link svg {
+            margin-right: 8px;
+            width: 24px;
+            height: 24px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>数字调音台信号分配与使用说明</h1>
-        
-        <div class="section">
-            <h2>一、设备概述</h2>
-            <p>本系统采用24路数字调音台配合2台4进8出音频处理器，实现专业音频信号分配与处理。系统设计充分考虑了演出需求，确保信号传输的稳定性和音质的最佳表现。</p>
-        </div>
+        <header>
+            <h1>数字调音台信号分配与使用说明</h1>
+            <p class="subtitle">专业音频系统配置指南</p>
+        </header>
 
-        <div class="section">
-            <h2>二、调音台输入配置</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>输入通道</th>
-                            <th>设备类型</th>
-                            <th>用途说明</th>
-                            <th>备注</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1-4</td>
-                            <td>无线手持麦克风</td>
-                            <td>主持人/演讲者使用</td>
-                            <td>1234号</td>
-                        </tr>
-                        <tr>
-                            <td>5-8</td>
-                            <td>无线头戴麦克风</td>
-                            <td>表演者/歌手使用</td>
-                            <td>1234号</td>
-                        </tr>
-                        <tr>
-                            <td>9</td>
-                            <td>无线手拉手主机</td>
-                            <td>观众互动系统</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>10-11</td>
-                            <td>合唱合同</td>
-                            <td>合唱团/乐队使用</td>
-                            <td>2支</td>
-                        </tr>
-                        <tr>
-                            <td>12-13</td>
-                            <td>LED屏音频</td>
-                            <td>视频播放音频</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>14-15</td>
-                            <td>电脑音频</td>
-                            <td>背景音乐/音效</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>16-17</td>
-                            <td>地插盒音频</td>
-                            <td>临时设备接入</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>18-24</td>
-                            <td>备用通道</td>
-                            <td>扩展使用</td>
-                            <td>可根据需要配置</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>三、调音台输出配置</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>总线输出</th>
-                            <th>输出通道</th>
-                            <th>用途说明</th>
-                            <th>对应音箱</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>MAIN</td>
-                            <td>主输出</td>
-                            <td>主扩声系统</td>
-                            <td>线阵列全频+低音</td>
-                        </tr>
-                        <tr>
-                            <td>BUS14</td>
-                            <td>声像输出</td>
-                            <td>舞台前沿声像</td>
-                            <td>声像音箱</td>
-                        </tr>
-                        <tr>
-                            <td>BUS15</td>
-                            <td>补声输出</td>
-                            <td>后排补声</td>
-                            <td>补声音箱</td>
-                        </tr>
-                        <tr>
-                            <td>BUS16</td>
-                            <td>返听输出</td>
-                            <td>舞台返听</td>
-                            <td>返听音箱</td>
-                        </tr>
-                        <tr>
-                            <td>BUS1-13</td>
-                            <td>效果器/编组</td>
-                            <td>效果处理/编组控制</td>
-                            <td>可根据需要配置</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>四、音频处理器配置</h2>
-            
-            <h3>第一台音频处理器（主扩声处理）</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>处理器输入</th>
-                            <th>调音台输出总线</th>
-                            <th>信号内容</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>A</td>
-                            <td>BUS12</td>
-                            <td>电脑音频1</td>
-                        </tr>
-                        <tr>
-                            <td>B</td>
-                            <td>BUS11</td>
-                            <td>电脑音频2</td>
-                        </tr>
-                        <tr>
-                            <td>C</td>
-                            <td>BUS10</td>
-                            <td>LED屏音频</td>
-                        </tr>
-                        <tr>
-                            <td>D</td>
-                            <td>BUS9</td>
-                            <td>无线手拉手主机</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="content">
+            <div class="section">
+                <h2>一、系统概述</h2>
+                <p>本系统采用24路数字调音台配合2台4进8出音频处理器，实现专业音频信号分配与处理。系统设计充分考虑了演出需求，确保信号传输的稳定性和音质的最佳表现。</p>
                 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>处理器输出</th>
-                            <th>功放通道</th>
-                            <th>音箱配置</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>左侧线阵1</td>
-                            <td>左侧线阵列全频1号</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>左侧线阵2</td>
-                            <td>左侧线阵列全频2号</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>左侧线阵3</td>
-                            <td>左侧线阵列全频3号</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>左侧低音</td>
-                            <td>左侧次低音</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>右侧线阵1</td>
-                            <td>右侧线阵列全频1号</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>右侧线阵2</td>
-                            <td>右侧线阵列全频2号</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>右侧线阵3</td>
-                            <td>右侧线阵列全频3号</td>
-                        </tr>
-                        <tr>
-                            <td>8</td>
-                            <td>右侧低音</td>
-                            <td>右侧次低音</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>设备类型</th>
+                                <th>数量</th>
+                                <th>主要功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>数字调音台</td>
+                                <td>1台</td>
+                                <td>24路XLR输入，21条混音总线</td>
+                            </tr>
+                            <tr>
+                                <td>音频处理器</td>
+                                <td>2台</td>
+                                <td>4进8出信号处理</td>
+                            </tr>
+                            <tr>
+                                <td>功放</td>
+                                <td>多台</td>
+                                <td>驱动各类音箱</td>
+                            </tr>
+                            <tr>
+                                <td>音箱系统</td>
+                                <td>多种</td>
+                                <td>主扩声、返听、声像、补声</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <h3>第二台音频处理器（返听与补声处理）</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>处理器输入</th>
-                            <th>调音台输出总线</th>
-                            <th>信号内容</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>A</td>
-                            <td>BUS8</td>
-                            <td>合唱团1</td>
-                        </tr>
-                        <tr>
-                            <td>B</td>
-                            <td>BUS7</td>
-                            <td>合唱团2</td>
-                        </tr>
-                        <tr>
-                            <td>C</td>
-                            <td>BUS6</td>
-                            <td>无线头戴麦克风1-4</td>
-                        </tr>
-                        <tr>
-                            <td>D</td>
-                            <td>BUS5</td>
-                            <td>无线手持麦克风1-4</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="section">
+                <h2>二、调音台输入配置</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>输入通道</th>
+                                <th>设备类型</th>
+                                <th>用途说明</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1-4</td>
+                                <td>无线手持麦克风</td>
+                                <td>主持人/演讲者使用</td>
+                                <td>1234号</td>
+                            </tr>
+                            <tr>
+                                <td>5-8</td>
+                                <td>无线头戴麦克风</td>
+                                <td>表演者/歌手使用</td>
+                                <td>1234号</td>
+                            </tr>
+                            <tr>
+                                <td>9</td>
+                                <td>无线手拉手主机</td>
+                                <td>观众互动系统</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>10-11</td>
+                                <td>合唱合同</td>
+                                <td>合唱团/乐队使用</td>
+                                <td>2支</td>
+                            </tr>
+                            <tr>
+                                <td>12-13</td>
+                                <td>LED屏音频</td>
+                                <td>视频播放音频</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>14-15</td>
+                                <td>电脑音频</td>
+                                <td>背景音乐/音效</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>16-17</td>
+                                <td>地插盒音频</td>
+                                <td>临时设备接入</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>18-24</td>
+                                <td>备用通道</td>
+                                <td>扩展使用</td>
+                                <td>可根据需要配置</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>三、调音台输出配置</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>总线输出</th>
+                                <th>输出通道</th>
+                                <th>用途说明</th>
+                                <th>对应音箱</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MAIN</td>
+                                <td>主输出</td>
+                                <td>主扩声系统</td>
+                                <td>线阵列全频+低音</td>
+                            </tr>
+                            <tr>
+                                <td>BUS14</td>
+                                <td>声像输出</td>
+                                <td>舞台前沿声像</td>
+                                <td>声像音箱</td>
+                            </tr>
+                            <tr>
+                                <td>BUS15</td>
+                                <td>补声输出</td>
+                                <td>后排补声</td>
+                                <td>补声音箱</td>
+                            </tr>
+                            <tr>
+                                <td>BUS16</td>
+                                <td>返听输出</td>
+                                <td>舞台返听</td>
+                                <td>返听音箱</td>
+                            </tr>
+                            <tr>
+                                <td>BUS1-13</td>
+                                <td>效果器/编组</td>
+                                <td>效果处理/编组控制</td>
+                                <td>可根据需要配置</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>四、音箱配置详情</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>音箱类型</th>
+                                <th>数量</th>
+                                <th>位置</th>
+                                <th>功放配置</th>
+                                <th>信号来源</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>线阵列全频</td>
+                                <td>6只</td>
+                                <td>左右各3只</td>
+                                <td>6路功放</td>
+                                <td>第一台处理器</td>
+                            </tr>
+                            <tr>
+                                <td>次低音</td>
+                                <td>2只</td>
+                                <td>左右各1只</td>
+                                <td>2路功放</td>
+                                <td>第一台处理器</td>
+                            </tr>
+                            <tr>
+                                <td>返听音箱</td>
+                                <td>4只</td>
+                                <td>舞台</td>
+                                <td>2路功放</td>
+                                <td>第二台处理器</td>
+                            </tr>
+                            <tr>
+                                <td>声像音箱</td>
+                                <td>2只</td>
+                                <td>舞台前沿</td>
+                                <td>1路功放</td>
+                                <td>第二台处理器</td>
+                            </tr>
+                            <tr>
+                                <td>补声音箱</td>
+                                <td>8只</td>
+                                <td>左右各3只+后排2只</td>
+                                <td>4路功放</td>
+                                <td>第二台处理器</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>五、音频处理器配置</h2>
                 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>处理器输出</th>
-                            <th>功放通道</th>
-                            <th>音箱配置</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>返听1</td>
-                            <td>返听音箱1-2</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>返听2</td>
-                            <td>返听音箱3-4</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>声像功放</td>
-                            <td>声像音箱</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>补声1</td>
-                            <td>补声音箱1-2</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>补声2</td>
-                            <td>补声音箱3-4</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>补声3</td>
-                            <td>补声音箱5-6</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>补声4</td>
-                            <td>补声音箱7-8</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                <h3>第一台音频处理器（主扩声处理）</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>处理器输入</th>
+                                <th>调音台输出总线</th>
+                                <th>信号内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>A</td>
+                                <td>BUS12</td>
+                                <td>电脑音频1</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td>BUS11</td>
+                                <td>电脑音频2</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>BUS10</td>
+                                <td>LED屏音频</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>BUS9</td>
+                                <td>无线手拉手主机</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>处理器输出</th>
+                                <th>功放通道</th>
+                                <th>音箱配置</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>左侧线阵1</td>
+                                <td>左侧线阵列全频1号</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>左侧线阵2</td>
+                                <td>左侧线阵列全频2号</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>左侧线阵3</td>
+                                <td>左侧线阵列全频3号</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>左侧低音</td>
+                                <td>左侧次低音</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>右侧线阵1</td>
+                                <td>右侧线阵列全频1号</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>右侧线阵2</td>
+                                <td>右侧线阵列全频2号</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>右侧线阵3</td>
+                                <td>右侧线阵列全频3号</td>
+                            </tr>
+                            <tr>
+                                <td>8</td>
+                                <td>右侧低音</td>
+                                <td>右侧次低音</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <div class="section">
-            <h2>五、信号流程图</h2>
-            <div class="diagram">
-                <pre>
+                <h3>第二台音频处理器（返听与补声处理）</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>处理器输入</th>
+                                <th>调音台输出总线</th>
+                                <th>信号内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>A</td>
+                                <td>BUS8</td>
+                                <td>合唱团1</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td>BUS7</td>
+                                <td>合唱团2</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>BUS6</td>
+                                <td>无线头戴麦克风1-4</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>BUS5</td>
+                                <td>无线手持麦克风1-4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>处理器输出</th>
+                                <th>功放通道</th>
+                                <th>音箱配置</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>返听1</td>
+                                <td>返听音箱1-2</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>返听2</td>
+                                <td>返听音箱3-4</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>声像功放</td>
+                                <td>声像音箱</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>补声1</td>
+                                <td>补声音箱1-2</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>补声2</td>
+                                <td>补声音箱3-4</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>补声3</td>
+                                <td>补声音箱5-6</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>补声4</td>
+                                <td>补声音箱7-8</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>六、信号流程图</h2>
+                <div class="diagram">
+                    <pre>
 音源设备
 │
 ├─► 调音台输入通道
@@ -431,90 +662,86 @@
     ├── 声像: 舞台前沿声像
     └── 补声: 后排补声音箱
                 </pre>
+                </div>
             </div>
-        </div>
 
-        <div class="section">
-            <h2>六、使用说明</h2>
-            
-            <h3>1. 开机顺序</h3>
-            <ol>
-                <li>打开电源时，先开功放，再开调音台，最后开音频处理器</li>
-                <li>关机时，先关音频处理器，再关调音台，最后关功放</li>
-            </ol>
+            <div class="section">
+                <h2>七、使用说明</h2>
+                
+                <h3>1. 开机顺序</h3>
+                <ol>
+                    <li>打开电源时，先开功放，再开调音台，最后开音频处理器</li>
+                    <li>关机时，先关音频处理器，再关调音台，最后关功放</li>
+                </ol>
 
-            <h3>2. 输入通道设置</h3>
-            <ul>
-                <li>无线麦克风：确保电池电量充足，打开接收机电源</li>
-                <li>合唱团：调整输入增益，避免削波</li>
-                <li>电脑音频：设置合适的输入电平</li>
-                <li>LED屏音频：与视频同步播放</li>
-            </ul>
-
-            <h3>3. 输出总线调整</h3>
-            <ul>
-                <li>MAIN总线：主音量控制，确保整体音量平衡</li>
-                <li>BUS14 (声像)：调整声像音箱音量，增强舞台前沿效果</li>
-                <li>BUS15 (补声)：根据观众区域调整补声音量</li>
-                <li>BUS16 (返听)：为表演者提供清晰的返听效果</li>
-            </ul>
-
-            <h3>4. 音频处理器设置</h3>
-            <ul>
-                <li>第一台处理器：主要处理主扩声音频，包括均衡、压缩等效果</li>
-                <li>第二台处理器：处理返听和补声音频，确保舞台监听清晰</li>
-            </ul>
-
-            <h3>5. 音量平衡</h3>
-            <ul>
-                <li>先调整各输入通道的增益，确保信号不过载</li>
-                <li>再调整各输出总线的电平，保持整体平衡</li>
-                <li>最后调整功放音量，达到合适的输出音量</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>七、注意事项</h2>
-            <div class="warning">
-                <p><strong>重要提示：</strong></p>
+                <h3>2. 输入通道设置</h3>
                 <ul>
-                    <li>操作前请确保所有设备接地良好，防止噪音干扰</li>
-                    <li>避免输入信号过载，注意观察调音台电平指示</li>
-                    <li>无线麦克风使用前请检查电池电量</li>
-                    <li>定期检查线缆连接，确保信号传输稳定</li>
-                    <li>根据演出场地调整各音箱组音量平衡</li>
+                    <li>无线麦克风：确保电池电量充足，打开接收机电源</li>
+                    <li>合唱团：调整输入增益，避免削波</li>
+                    <li>电脑音频：设置合适的输入电平</li>
+                    <li>LED屏音频：与视频同步播放</li>
+                </ul>
+
+                <h3>3. 输出总线调整</h3>
+                <ul>
+                    <li>MAIN总线：主音量控制，确保整体音量平衡</li>
+                    <li>BUS14 (声像)：调整声像音箱音量，增强舞台前沿效果</li>
+                    <li>BUS15 (补声)：根据观众区域调整补声音量</li>
+                    <li>BUS16 (返听)：为表演者提供清晰的返听效果</li>
+                </ul>
+
+                <h3>4. 音频处理器设置</h3>
+                <ul>
+                    <li>第一台处理器：主要处理主扩声音频，包括均衡、压缩等效果</li>
+                    <li>第二台处理器：处理返听和补声音频，确保舞台监听清晰</li>
+                </ul>
+
+                <h3>5. 音量平衡</h3>
+                <ul>
+                    <li>先调整各输入通道的增益，确保信号不过载</li>
+                    <li>再调整各输出总线的电平，保持整体平衡</li>
+                    <li>最后调整功放音量，达到合适的输出音量</li>
                 </ul>
             </div>
-            
-            <div class="success">
-                <p><strong>系统优势：</strong></p>
-                <ul>
-                    <li>专业级音频处理，确保音质清晰</li>
-                    <li>灵活的信号分配，满足不同演出需求</li>
-                    <li>模块化设计，便于维护和扩展</li>
-                    <li>完善的备份机制，确保演出连续性</li>
-                </ul>
+
+            <div class="section">
+                <h2>八、注意事项</h2>
+                <div class="warning">
+                    <p><strong>重要提示：</strong></p>
+                    <ul>
+                        <li>操作前请确保所有设备接地良好，防止噪音干扰</li>
+                        <li>避免输入信号过载，注意观察调音台电平指示</li>
+                        <li>无线麦克风使用前请检查电池电量</li>
+                        <li>定期检查线缆连接，确保信号传输稳定</li>
+                        <li>根据演出场地调整各音箱组音量平衡</li>
+                    </ul>
+                </div>
+                
+                <div class="success">
+                    <p><strong>系统优势：</strong></p>
+                    <ul>
+                        <li>专业级音频处理，确保音质清晰</li>
+                        <li>灵活的信号分配，满足不同演出需求</li>
+                        <li>模块化设计，便于维护和扩展</li>
+                        <li>完善的备份机制，确保演出连续性</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="github-link">
+                <a href="https://github.com/zhangjiaxiang9929/rizhi" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.835 2.807 1.305 3.492.998.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.608-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    查看完整文档和源代码
+                </a>
             </div>
         </div>
 
-        <div class="section" style="text-align: center;">
-            <h3>系统示意图</h3>
-            <div class="diagram">
-                <pre>
-[无线麦克风] → 调音台 → [音频处理器] → [功放] → [音箱]
-       │              │              │
-       └─► [合唱团] ──►│              │
-       │              │              │
-       └─► [电脑音频] →│              │
-       │              │              │
-       └─► [LED屏] ───►│              │
-                    │              │
-                    ▼              ▼
-                [主扩声]        [返听/补声]
-                (线阵列)        (舞台监听)
-                </pre>
-            </div>
-        </div>
+        <footer class="footer">
+            <p>© 2026 数字调音台信号分配系统 | 最后更新: 2026年4月11日</p>
+            <p>如有问题请联系技术支持</p>
+        </footer>
     </div>
 </body>
 </html>
