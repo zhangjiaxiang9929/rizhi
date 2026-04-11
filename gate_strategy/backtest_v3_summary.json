@@ -1,0 +1,80 @@
+{
+  "strategy": "平衡型 4h/5x",
+  "params": {
+    "LEVERAGE": 5,
+    "EMA_FAST": 9,
+    "EMA_SLOW": 21,
+    "EMA_TREND": 200,
+    "RSI_LOW": 40,
+    "RSI_HIGH": 65,
+    "STOP_PCT": 0.015,
+    "REWARD_RATIO": 3,
+    "VOL_FILTER": true,
+    "ADX_THRESHOLD": 15,
+    "POSITION_RATIO": 0.2,
+    "INTERVAL": "4h",
+    "DAYS": 180
+  },
+  "symbols": [
+    "BTC_USDT",
+    "ETH_USDT",
+    "SOL_USDT"
+  ],
+  "totalInit": 500,
+  "totalFinal": 494.25,
+  "totalROI": -1.15,
+  "totalPnl": -5.74,
+  "results": [
+    {
+      "symbol": "BTC_USDT",
+      "total": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 50,
+      "avgWin": 7.38,
+      "avgLoss": 2.73,
+      "profitFactor": 2.7,
+      "maxDD": 1.57,
+      "sharpe": 7.3,
+      "finalCap": 171.32,
+      "roi": 2.79,
+      "totalPnl": 4.65,
+      "avgHoldBars": 4.5,
+      "initCapital": 166.66666666666666
+    },
+    {
+      "symbol": "ETH_USDT",
+      "total": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "avgWin": 0,
+      "avgLoss": 2.6,
+      "profitFactor": 0,
+      "maxDD": 3.12,
+      "sharpe": -2000.5,
+      "finalCap": 161.47,
+      "roi": -3.12,
+      "totalPnl": -5.19,
+      "avgHoldBars": 3.5,
+      "initCapital": 166.66666666666666
+    },
+    {
+      "symbol": "SOL_USDT",
+      "total": 2,
+      "winCount": 0,
+      "lossCount": 2,
+      "winRate": 0,
+      "avgWin": 0,
+      "avgLoss": 2.6,
+      "profitFactor": 0,
+      "maxDD": 3.12,
+      "sharpe": -2145.86,
+      "finalCap": 161.46,
+      "roi": -3.12,
+      "totalPnl": -5.2,
+      "avgHoldBars": 6.5,
+      "initCapital": 166.66666666666666
+    }
+  ]
+}

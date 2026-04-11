@@ -1,0 +1,32 @@
+[
+  {
+    "name": "旧策略(15m/10x)",
+    "roi": -42.69,
+    "winRate": 31.2,
+    "sharpe": -1.43,
+    "maxDD": 52.69,
+    "profitFactor": 0.83,
+    "totalTrades": 141,
+    "finalCap": 286.54
+  },
+  {
+    "name": "优化策略(4h/5x)",
+    "roi": 4.43,
+    "winRate": 100,
+    "sharpe": 0,
+    "maxDD": 0,
+    "profitFactor": 999,
+    "totalTrades": 1,
+    "finalCap": 522.15
+  },
+  {
+    "name": "中间策略(1h/7x)",
+    "roi": -22.02,
+    "winRate": 18.8,
+    "sharpe": -4.8,
+    "maxDD": 24.25,
+    "profitFactor": 0.52,
+    "totalTrades": 32,
+    "finalCap": 389.89
+  }
+]

@@ -1,0 +1,191 @@
+{
+  "version": "v10-oscillate-2pct-sl",
+  "cfg": {
+    "LEVERAGE": 5,
+    "STOP_PCT": 0.02,
+    "TAKE_PCT": 0.03,
+    "POSITION_RATIO": 0.2,
+    "EMA_FAST": 9,
+    "EMA_SLOW": 21,
+    "EMA_MID": 55,
+    "RSI_PERIOD": 14,
+    "RSI_OB": 65,
+    "RSI_OS": 35,
+    "ATR_MIN_PCT": 0.002,
+    "BB_PERIOD": 20,
+    "BB_STD": 2,
+    "INTERVAL": "1h",
+    "DAYS": 180,
+    "COMPOUND": true
+  },
+  "results": [
+    {
+      "sym": "BTC_USDT",
+      "total": 102,
+      "winCount": 47,
+      "lossCount": 55,
+      "winRate": 46.1,
+      "avgWin": 5,
+      "avgLoss": 3.58,
+      "profitFactor": 1.19,
+      "maxDD": 14.65,
+      "finalCap": 204.97,
+      "roi": 22.98,
+      "tPnl": 38.3,
+      "initCap": 166.66666666666666,
+      "totalFee": 12.27,
+      "monthly": {
+        "2025-09": {
+          "pnl": -2.1442999999999994,
+          "win": 1,
+          "loss": 2
+        },
+        "2025-10": {
+          "pnl": 0.15469999999999873,
+          "win": 8,
+          "loss": 11
+        },
+        "2025-11": {
+          "pnl": -7.851999999999999,
+          "win": 7,
+          "loss": 12
+        },
+        "2025-12": {
+          "pnl": 15.211799999999997,
+          "win": 9,
+          "loss": 8
+        },
+        "2026-01": {
+          "pnl": 12.2314,
+          "win": 6,
+          "loss": 5
+        },
+        "2026-02": {
+          "pnl": 11.1386,
+          "win": 10,
+          "loss": 11
+        },
+        "2026-03": {
+          "pnl": 9.5609,
+          "win": 6,
+          "loss": 6
+        }
+      },
+      "mxW": 5,
+      "mxL": 5,
+      "avgPerDay": 1.2
+    },
+    {
+      "sym": "ETH_USDT",
+      "total": 148,
+      "winCount": 60,
+      "lossCount": 88,
+      "winRate": 40.5,
+      "avgWin": 4.39,
+      "avgLoss": 3.19,
+      "profitFactor": 0.94,
+      "maxDD": 29.02,
+      "finalCap": 149.61,
+      "roi": -10.23,
+      "tPnl": -17.06,
+      "initCap": 166.66666666666666,
+      "totalFee": 15.78,
+      "monthly": {
+        "2025-09": {
+          "pnl": 10.435500000000001,
+          "win": 5,
+          "loss": 4
+        },
+        "2025-10": {
+          "pnl": -39.1822,
+          "win": 8,
+          "loss": 23
+        },
+        "2025-11": {
+          "pnl": 4.5953,
+          "win": 12,
+          "loss": 15
+        },
+        "2025-12": {
+          "pnl": 19.688500000000005,
+          "win": 11,
+          "loss": 9
+        },
+        "2026-01": {
+          "pnl": -24.175900000000002,
+          "win": 6,
+          "loss": 16
+        },
+        "2026-02": {
+          "pnl": 24.153199999999995,
+          "win": 15,
+          "loss": 13
+        },
+        "2026-03": {
+          "pnl": -12.575200000000002,
+          "win": 3,
+          "loss": 8
+        }
+      },
+      "mxW": 6,
+      "mxL": 8,
+      "avgPerDay": 1.3
+    },
+    {
+      "sym": "SOL_USDT",
+      "total": 173,
+      "winCount": 71,
+      "lossCount": 102,
+      "winRate": 41,
+      "avgWin": 4.93,
+      "avgLoss": 3.56,
+      "profitFactor": 0.96,
+      "maxDD": 24.73,
+      "finalCap": 153.37,
+      "roi": -7.98,
+      "tPnl": -13.29,
+      "initCap": 166.66666666666666,
+      "totalFee": 20.67,
+      "monthly": {
+        "2025-09": {
+          "pnl": -14.8999,
+          "win": 4,
+          "loss": 10
+        },
+        "2025-10": {
+          "pnl": 18.398500000000002,
+          "win": 17,
+          "loss": 18
+        },
+        "2025-11": {
+          "pnl": 20.067500000000003,
+          "win": 14,
+          "loss": 14
+        },
+        "2025-12": {
+          "pnl": 2.274000000000002,
+          "win": 12,
+          "loss": 16
+        },
+        "2026-01": {
+          "pnl": -29.509400000000003,
+          "win": 8,
+          "loss": 19
+        },
+        "2026-02": {
+          "pnl": 1.9466999999999994,
+          "win": 12,
+          "loss": 16
+        },
+        "2026-03": {
+          "pnl": -11.571200000000001,
+          "win": 4,
+          "loss": 9
+        }
+      },
+      "mxW": 5,
+      "mxL": 12,
+      "avgPerDay": 1.4
+    }
+  ]
+}

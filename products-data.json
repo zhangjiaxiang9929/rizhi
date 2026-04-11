@@ -1,0 +1,146 @@
+{
+  "company": "广州市科万电子科技有限公司",
+  "brand": "帝拓音频",
+  "categories": [
+    {
+      "id": "network-broadcast",
+      "name": "网络广播系统",
+      "folder": "01-网络广播系统",
+      "products": [
+        {"name": "四通道定压数字功放", "image": "/uploads/allimg/20240520/1-240520104359160.jpg"},
+        {"name": "两通道定压数字功放", "image": "/uploads/allimg/20240520/1-240520102JR36.jpg"},
+        {"name": "网络防爆对讲终端N-TEL30", "image": "/uploads/allimg/20240508/1-24050R22610241.jpg"},
+        {"name": "1U数字定压功放", "image": "/uploads/allimg/20240424/1-240424143049434.jpg"},
+        {"name": "全国产化网络广播服务器N-C900", "image": "/uploads/allimg/20240201/1-2402011114191A.jpg"},
+        {"name": "IP网络音频采集器 N-CJ4", "image": "/uploads/allimg/20230604/1-23060416131L64.jpg"},
+        {"name": "N-AL32 三十二路网络报警器", "image": "/uploads/allimg/20220830/1-220S01S621917.jpg"},
+        {"name": "N-AL16 十六路网络报警器", "image": "/uploads/allimg/20220830/1-220S01QR3c6.jpg"},
+        {"name": "N-TS01 网络广播卫星校时服务器", "image": "/uploads/allimg/20220830/1-220S01P629318.jpg"}
+      ]
+    },
+    {
+      "id": "line-array",
+      "name": "线阵扬声器",
+      "folder": "02-线阵扬声器",
+      "products": [
+        {"name": "双12寸线阵音箱低频扬声器TWL-328", "image": "/uploads/allimg/20231118/1-23111Q50923403.jpg"},
+        {"name": "双12寸线阵音箱 TWL-312", "image": "/uploads/allimg/20231118/1-23111Q50100304.jpg"},
+        {"name": "KW点声源线阵系统", "image": "/uploads/allimg/201012/1-2010121T6010-L.jpg"},
+        {"name": "TWL-110 10寸多功能线阵音箱", "image": "/uploads/allimg/190714/1-1ZG40111440-L.jpg"},
+        {"name": "TWL-108 8寸多功能线阵音箱", "image": "/uploads/allimg/190714/1-1ZG40101270-L.jpg"},
+        {"name": "TWL12 线阵系列", "image": "/uploads/allimg/190525/1-1Z5251143240-L.jpg"}
+      ]
+    },
+    {
+      "id": "pro-speaker",
+      "name": "专业音箱",
+      "folder": "03-专业音箱",
+      "products": [
+        {"name": "HLJ全天候紧凑型同轴音箱", "image": "/uploads/allimg/20240508/1-24050R20SEQ.jpg"},
+        {"name": "TL281 双8寸专业音箱", "image": "/uploads/allimg/20230322/1-2303221T104M5.jpg"},
+        {"name": "TL261 双6寸专业音箱", "image": "/uploads/allimg/20230322/1-2303221T104M5.jpg"},
+        {"name": "PL-8 8寸防水多功能专业音箱", "image": "/uploads/allimg/20230330/1-230330125353c3.jpg"},
+        {"name": "PL-10 10寸防水多功能专业音箱", "image": "/uploads/allimg/20230330/1-230330125353c3.jpg"},
+        {"name": "PL-12 12寸防水多功能专业音箱", "image": "/uploads/allimg/20230330/1-230330125353c3.jpg"}
+      ]
+    },
+    {
+      "id": "ceiling-horn",
+      "name": "天花/号角扬声器",
+      "folder": "04-天花号角扬声器",
+      "products": [
+        {"name": "CL-D610 CL-D620悬吊式扬声器（吊绳）", "image": "/uploads/allimg/20230330/1-230330125005552.jpg"},
+        {"name": "CL-D511 吊球式扬声器（吊绳）", "image": "/uploads/allimg/20230330/1-230330124I3O7.jpg"},
+        {"name": "CL-D510 吊球式扬声器（吊绳）", "image": "/uploads/allimg/20230330/1-230330124U1240.jpg"},
+        {"name": "CL-D515T 同轴吊球扬声器（吊杆）", "image": "/uploads/allimg/181031/1-1Q031133A50-L.jpg"},
+        {"name": "CL-Q 嵌入式扬声器", "image": "/uploads/allimg/180612/1-1P612094J00-L.jpg"},
+        {"name": "CL-808F 8寸HIFI吸顶扬声器", "image": "/uploads/allimg/180517/1-1P51F934390-L.jpg"},
+        {"name": "S-H30 高音号角扬声器", "image": "/uploads/allimg/190329/1-1Z3291216410-L.jpg"},
+        {"name": "S-HT50 高清号角", "image": "/uploads/allimg/190329/1-1Z329111I30-L.jpg"},
+        {"name": "S-HW50 双单元宽域号角", "image": "/uploads/allimg/190329/1-1Z3291116320-L.jpg"},
+        {"name": "S-HW30 宽域号角", "image": "/uploads/allimg/190329/1-1Z3291115110-L.jpg"},
+        {"name": "S-HL 远程大型号角系列", "image": "/uploads/allimg/190329/1-1Z329110Q20-L.jpg"}
+      ]
+    },
+    {
+      "id": "conference",
+      "name": "会议系统",
+      "folder": "05-会议系统",
+      "products": [
+        {"name": "多功能阵列式线柱扬声器TL-454H", "image": "/uploads/allimg/20230418/1-23041R00243440.jpg"},
+        {"name": "会议音箱 M161", "image": "/uploads/allimg/20220928/1-22092Q605191M.jpg"},
+        {"name": "会议音箱 M261", "image": "/uploads/allimg/20220928/1-22092Q60634K6.jpg"},
+        {"name": "多功能音箱 M243", "image": "/uploads/allimg/210813/1-210Q31QJ80-L.jpg"},
+        {"name": "多功能音箱 M143", "image": "/uploads/allimg/210813/1-210Q31Q5290-L.jpg"},
+        {"name": "M508 双高音高保真吸顶扬声器", "image": "/uploads/allimg/201207/1-20120G60Q90-L.jpg"}
+      ]
+    },
+    {
+      "id": "power-amp",
+      "name": "功率放大器",
+      "folder": "06-功率放大器",
+      "products": [
+        {"name": "DP4.06 DP4.08四通道数字功放", "image": "/uploads/allimg/200709/1-200F91301190-L.jpg"},
+        {"name": "DP4数字功放系列", "image": "/uploads/allimg/190320/1-1Z3202211490-L.jpg"},
+        {"name": "QM2 大功率专业功放系列", "image": "/uploads/190320/1-1Z320192Z3W1.jpg"},
+        {"name": "QM4 4通道专业功率放大器", "image": "/uploads/190828/1-1ZRR13501a1.jpg"},
+        {"name": "QM2专业功率放大器系列", "image": "/uploads/190827/1-1ZRH35A9E6.jpg"},
+        {"name": "QT系列专业功放", "image": "/uploads/allimg/181025/1-1Q0251021570-L.jpg"}
+      ]
+    },
+    {
+      "id": "mixer",
+      "name": "调音台及周边",
+      "folder": "07-调音台",
+      "products": [
+        {"name": "4进8出处理器DQF48", "image": ""},
+        {"name": "24路四编组调音台 DQX24", "image": ""},
+        {"name": "16路四编组调音台 DQX16", "image": ""},
+        {"name": "12路四编组调音台DQX12", "image": ""},
+        {"name": "PRO16 16路大功率电源时序器", "image": ""}
+      ]
+    },
+    {
+      "id": "wireless-mic",
+      "name": "无线话筒",
+      "folder": "08-无线话筒",
+      "products": [
+        {"name": "真分集无线话筒U1030", "image": ""},
+        {"name": "一拖四真分集无线演绎话筒U4060", "image": ""},
+        {"name": "单路有源天线放大器U-100F", "image": ""},
+        {"name": "U-M4 UHF一拖四工程无线麦克风", "image": ""},
+        {"name": "UA2 U段一拖二无线话筒", "image": ""},
+        {"name": "U-M2 UHF一拖二工程无线麦克风", "image": ""}
+      ]
+    },
+    {
+      "id": "conference-system",
+      "name": "会议系统设备",
+      "folder": "09-会议系统设备",
+      "products": [
+        {"name": "QD 四通道数字功放", "image": ""},
+        {"name": "MT820C MT820D会议发言单元", "image": ""},
+        {"name": "MT890M 会议系统主机", "image": ""},
+        {"name": "MT820 会议系统主机", "image": ""},
+        {"name": "无线会议系统单元 MT911CW MT911DW", "image": ""}
+      ]
+    }
+  ],
+  "cases": [
+    "佛山南海城市规划馆", "格雷斯酒店（连锁）", "广州国际电子大厦", 
+    "广州开发区二幼中心园", "贵州南光星城", "合浦文昌塔公园",
+    "金海岸文化中心", "金华城市展览馆", "南京维也纳国际",
+    "上海财大科技园", "烟台仙客居五星级酒店", "中铁集团一至十一局",
+    "大亚湾国际疫苗研发中心", "浙江西南检测中心", "佛山潮派娱乐",
+    "湖南平江桂花学校", "怀化侗族文化中心", "深圳大兴集团"
+  ],
+  "contact": {
+    "company": "广州市科万电子科技有限公司",
+    "address": "广州市番禺区石基镇开达工业园j幢",
+    "phone": "020-31144587",
+    "mobile": "13570389434",
+    "qq": "80721381",
+    "email": "80721381@qq.com",
+    "worktime": "周一至周六 8:30-18:00"
+  }
+}

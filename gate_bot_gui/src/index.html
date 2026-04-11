@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gate.io BTC 机器人 v10</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: "Microsoft YaHei", "Segoe UI", sans-serif; background:#0f1117; color:#e2e8f0; height:100vh; overflow:hidden; }
+
+/* 顶部状态栏 */
+#topbar { display:flex; align-items:center; justify-content:space-between; background:#1a1d2e; padding:12px 20px; border-bottom:1px solid #2d3748; }
+#topbar .logo { font-size:16px; font-weight:700; color:#f7931a; letter-spacing:1px; }
+#topbar .status-pill { padding:4px 14px; border-radius:20px; font-size:12px; font-weight:600; }
+.pill-stopped { background:#2d1515; color:#fc8181; border:1px solid #e53e3e; }
+.pill-running { background:#1a2d1a; color:#68d391; border:1px solid #38a169; }
+.pill-dry     { background:#1a2440; color:#63b3ed; border:1px solid #3182ce; }
+#price-display { font-size:22px; font-weight:700; color:#f7931a; }
+#price-display span { font-size:12px; color:#718096; margin-left:4px; }
+
+/* 主布局 */
+#app { display:grid; grid-template-columns:320px 1fr; grid-template-rows:1fr; height:calc(100vh - 53px); }
+
+/* 左侧面板 */
+#left-panel { background:#141720; border-right:1px solid #2d3748; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
+
+.card { background:#1a1d2e; border:1px solid #2d3748; border-radius:10px; padding:14px; }
+.card-title { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#718096; margin-bottom:12px; font-weight:600; }
+
+/* 表单 */
+.form-row { margin-bottom:10px; }
+.form-row label { display:block; font-size:12px; color:#a0aec0; margin-bottom:4px; }
+.form-row input { width:100%; background:#0f1117; border:1px solid #2d3748; border-radius:6px; padding:7px 10px; color:#e2e8f0; font-size:13px; outline:none; transition:border-color .2s; }
+.form-row input:focus { border-color:#f7931a; }
+.form-row input[type=password] { letter-spacing:2px; }
+
+/* 滑块 */
+.slider-row { margin-bottom:10px; }
+.slider-row label { display:flex; justify-content:space-between; font-size:12px; color:#a0aec0; margin-bottom:4px; }
+.slider-row label span { color:#f7931a; font-weight:700; }
+input[type=range] { width:100%; accent-color:#f7931a; cursor:pointer; }
+
+/* 开关 */
+.toggle-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.toggle-row label { font-size:12px; color:#a0aec0; }
+.toggle { position:relative; width:44px; height:24px; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; inset:0; background:#2d3748; border-radius:24px; transition:.3s; }
+.toggle-slider:before { content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#718096; border-radius:50%; transition:.3s; }
+.toggle input:checked + .toggle-slider { background:#2d5a2d; }
+.toggle input:checked + .toggle-slider:before { transform:translateX(20px); background:#68d391; }
+
+/* 按钮 */
+#btn-start { width:100%; padding:12px; border-radius:8px; border:none; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; margin-top:4px; }
+#btn-start.start { background:linear-gradient(135deg,#f7931a,#e67e00); color:#fff; }
+#btn-start.start:hover { background:linear-gradient(135deg,#ff9f2e,#f7931a); transform:translateY(-1px); }
+#btn-start.stop  { background:linear-gradient(135deg,#e53e3e,#c53030); color:#fff; }
+#btn-start.stop:hover { transform:translateY(-1px); }
+#btn-save { width:100%; padding:8px; border-radius:6px; border:1px solid #2d3748; background:transparent; color:#a0aec0; font-size:12px; cursor:pointer; margin-top:6px; }
+#btn-save:hover { border-color:#f7931a; color:#f7931a; }
+
+/* 右侧面板 */
+#right-panel { display:grid; grid-template-rows:auto 1fr; overflow:hidden; }
+
+/* 统计卡片区 */
+#stats-bar { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:14px; background:#141720; border-bottom:1px solid #2d3748; }
+.stat-card { background:#1a1d2e; border:1px solid #2d3748; border-radius:8px; padding:12px 14px; }
+.stat-card .label { font-size:11px; color:#718096; margin-bottom:4px; }
+.stat-card .value { font-size:20px; font-weight:700; }
+.val-neutral { color:#e2e8f0; }
+.val-green   { color:#68d391; }
+.val-red     { color:#fc8181; }
+.val-orange  { color:#f7931a; }
+
+/* 持仓卡片 */
+#position-card { display:none; background:#1a2440; border:1px solid #3182ce; border-radius:8px; padding:10px 14px; margin:0 14px; margin-top:12px; }
+#position-card .pos-header { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+#position-card .pos-dir { padding:2px 10px; border-radius:4px; font-size:11px; font-weight:700; }
+.dir-long  { background:#1a2d1a; color:#68d391; border:1px solid #38a169; }
+.dir-short { background:#2d1515; color:#fc8181; border:1px solid #e53e3e; }
+#position-card .pos-details { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; font-size:12px; }
+#position-card .pos-item .pi-label { color:#718096; margin-bottom:2px; }
+#position-card .pos-item .pi-value { font-weight:600; }
+
+/* 日志区 */
+#log-area { padding:14px; overflow:hidden; display:flex; flex-direction:column; }
+#log-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+#log-header span { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#718096; font-weight:600; }
+#btn-clear-log { background:none; border:1px solid #2d3748; color:#718096; padding:3px 10px; border-radius:4px; font-size:11px; cursor:pointer; }
+#btn-clear-log:hover { border-color:#718096; }
+#log-box { flex:1; overflow-y:auto; background:#0f1117; border:1px solid #2d3748; border-radius:8px; padding:10px; font-family:"Consolas","Courier New",monospace; font-size:12px; line-height:1.7; }
+#log-box::-webkit-scrollbar { width:4px; }
+#log-box::-webkit-scrollbar-track { background:#0f1117; }
+#log-box::-webkit-scrollbar-thumb { background:#2d3748; border-radius:2px; }
+
+/* 日志行颜色 */
+.log-info  { color:#a0aec0; }
+.log-scan  { color:#63b3ed; }
+.log-open  { color:#fbd38d; }
+.log-win   { color:#68d391; font-weight:600; }
+.log-loss  { color:#fc8181; }
+.log-warn  { color:#f6ad55; }
+.log-error { color:#fc8181; font-weight:600; }
+
+/* 信号指示器 */
+#signal-row { display:flex; align-items:center; gap:8px; padding:8px 14px; background:#141720; border-bottom:1px solid #2d3748; }
+#signal-row .sig-label { font-size:11px; color:#718096; }
+#sig-badge { padding:3px 12px; border-radius:4px; font-size:12px; font-weight:700; }
+.sig-hold  { background:#1a1d2e; color:#718096; border:1px solid #2d3748; }
+.sig-long  { background:#1a2d1a; color:#68d391; border:1px solid #38a169; }
+.sig-short { background:#2d1515; color:#fc8181; border:1px solid #e53e3e; }
+#sig-detail { font-size:11px; color:#718096; margin-left:8px; }
+</style>
+</head>
+<body>
+
+<!-- 顶部状态栏 -->
+<div id="topbar">
+  <div class="logo">🤖 Gate.io BTC 机器人 v10</div>
+  <div id="price-display">-- <span>USDT</span></div>
+  <div id="status-pill" class="status-pill pill-stopped">● 未运行</div>
+</div>
+
+<div id="app">
+  <!-- 左侧：配置面板 -->
+  <div id="left-panel">
+
+    <!-- API 配置 -->
+    <div class="card">
+      <div class="card-title">🔑 API 配置</div>
+      <div class="form-row">
+        <label>API Key</label>
+        <input type="text" id="apiKey" placeholder="粘贴你的 API Key">
+      </div>
+      <div class="form-row">
+        <label>API Secret</label>
+        <input type="password" id="apiSecret" placeholder="粘贴你的 API Secret">
+      </div>
+      <div class="toggle-row">
+        <label>模拟模式（不真实下单）</label>
+        <label class="toggle">
+          <input type="checkbox" id="dryRun" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 交易参数 -->
+    <div class="card">
+      <div class="card-title">⚙️ 交易参数</div>
+
+      <div class="form-row">
+        <label>账户资金 (USDT)</label>
+        <input type="number" id="capital" value="500" min="50" max="100000">
+      </div>
+
+      <div class="slider-row">
+        <label>止盈 <span id="takePctVal">3</span>%</label>
+        <input type="range" id="takePct" min="1" max="10" step="0.5" value="3"
+          oninput="document.getElementById('takePctVal').textContent=this.value">
+      </div>
+
+      <div class="slider-row">
+        <label>止损 <span id="stopPctVal">2</span>%</label>
+        <input type="range" id="stopPct" min="0.5" max="5" step="0.5" value="2"
+          oninput="document.getElementById('stopPctVal').textContent=this.value">
+      </div>
+
+      <div class="slider-row">
+        <label>杠杆 <span id="leverageVal">5</span>x</label>
+        <input type="range" id="leverage" min="1" max="10" step="1" value="5"
+          oninput="document.getElementById('leverageVal').textContent=this.value">
+      </div>
+
+      <div class="slider-row">
+        <label>仓位比例 <span id="posRatioVal">20</span>%</label>
+        <input type="range" id="posRatio" min="5" max="50" step="5" value="20"
+          oninput="document.getElementById('posRatioVal').textContent=this.value">
+      </div>
+
+      <div class="slider-row">
+        <label>风控熔断 <span id="maxLossVal">20</span>%</label>
+        <input type="range" id="maxLoss" min="5" max="50" step="5" value="20"
+          oninput="document.getElementById('maxLossVal').textContent=this.value">
+      </div>
+    </div>
+
+    <!-- 启停控制 -->
+    <div class="card">
+      <button id="btn-start" class="start" onclick="toggleBot()">▶ 启动机器人</button>
+      <button id="btn-save" onclick="saveConfig()">💾 保存配置</button>
+    </div>
+
+    <!-- 参数说明 -->
+    <div class="card">
+      <div class="card-title">📐 当前数学预期</div>
+      <div id="math-info" style="font-size:12px;color:#a0aec0;line-height:1.8"></div>
+    </div>
+
+  </div>
+
+  <!-- 右侧：监控面板 -->
+  <div id="right-panel">
+
+    <!-- 统计卡片 -->
+    <div id="stats-bar">
+      <div class="stat-card">
+        <div class="label">账户余额</div>
+        <div class="value val-orange" id="s-balance">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">浮动盈亏</div>
+        <div class="value val-neutral" id="s-pnl">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">当前信号</div>
+        <div class="value val-neutral" id="s-signal">HOLD</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">下次扫描</div>
+        <div class="value val-neutral" id="s-next">--</div>
+      </div>
+    </div>
+
+    <!-- 持仓卡片 -->
+    <div id="position-card">
+      <div class="pos-header">
+        <span>持仓中</span>
+        <span id="pos-dir-badge" class="pos-dir">--</span>
+      </div>
+      <div class="pos-details">
+        <div class="pos-item"><div class="pi-label">入场价</div><div class="pi-value" id="pos-entry">--</div></div>
+        <div class="pos-item"><div class="pi-label">止损价</div><div class="pi-value" id="pos-sl" style="color:#fc8181">--</div></div>
+        <div class="pos-item"><div class="pi-label">止盈价</div><div class="pi-value" id="pos-tp" style="color:#68d391">--</div></div>
+        <div class="pos-item"><div class="pi-label">浮动盈亏</div><div class="pi-value" id="pos-pnl">--</div></div>
+      </div>
+    </div>
+
+    <!-- 信号指示器 -->
+    <div id="signal-row">
+      <span class="sig-label">最新信号</span>
+      <span id="sig-badge" class="sig-badge sig-hold">HOLD</span>
+      <span id="sig-detail">等待扫描...</span>
+    </div>
+
+    <!-- 日志 -->
+    <div id="log-area">
+      <div id="log-header">
+        <span>📋 运行日志</span>
+        <button id="btn-clear-log" onclick="clearLog()">清空</button>
+      </div>
+      <div id="log-box"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const { ipcRenderer } = require("electron");
+
+let botRunning = false;
+let nextScanTimer = null;
+let nextScanSec = 60;
+
+// ── 启动/停止 ─────────────────────────
+function toggleBot() {
+  if (!botRunning) startBot();
+  else stopBot();
+}
+
+function startBot() {
+  const cfg = getConfig();
+  if (!cfg.dryRun && !cfg.apiKey) {
+    appendLog("error", "请填写 API Key 和 Secret！");
+    return;
+  }
+  ipcRenderer.send("bot:start", cfg);
+}
+
+function stopBot() {
+  ipcRenderer.send("bot:stop");
+}
+
+function getConfig() {
+  return {
+    apiKey:    document.getElementById("apiKey").value.trim(),
+    apiSecret: document.getElementById("apiSecret").value.trim(),
+    dryRun:    document.getElementById("dryRun").checked,
+    capital:   parseFloat(document.getElementById("capital").value) || 500,
+    takePct:   parseFloat(document.getElementById("takePct").value),
+    stopPct:   parseFloat(document.getElementById("stopPct").value),
+    leverage:  parseInt(document.getElementById("leverage").value),
+    posRatio:  parseInt(document.getElementById("posRatio").value),
+    maxLoss:   parseInt(document.getElementById("maxLoss").value),
+  };
+}
+
+// ── IPC 回调 ──────────────────────────
+ipcRenderer.on("bot:started", () => {
+  botRunning = true;
+  const cfg = getConfig();
+  document.getElementById("btn-start").textContent = "■ 停止机器人";
+  document.getElementById("btn-start").className = "stop";
+  const pill = document.getElementById("status-pill");
+  pill.textContent = cfg.dryRun ? "● 模拟运行中" : "● 运行中";
+  pill.className = "status-pill " + (cfg.dryRun ? "pill-dry" : "pill-running");
+  startCountdown();
+  appendLog("info", `机器人已启动 ${cfg.dryRun?"【模拟模式】":"【真实交易】"}`);
+});
+
+ipcRenderer.on("bot:stopped", () => {
+  botRunning = false;
+  document.getElementById("btn-start").textContent = "▶ 启动机器人";
+  document.getElementById("btn-start").className = "start";
+  document.getElementById("status-pill").textContent = "● 未运行";
+  document.getElementById("status-pill").className = "status-pill pill-stopped";
+  if (nextScanTimer) clearInterval(nextScanTimer);
+  document.getElementById("s-next").textContent = "--";
+});
+
+ipcRenderer.on("bot:event", (_, ev) => {
+  const { type, data } = ev;
+
+  if (type === "log") {
+    appendLog(data.level, `[${data.ts}] ${data.msg}`);
+    // 每次收到日志重置倒计时
+    if (data.level === "scan" || data.level === "open") resetCountdown();
+  }
+
+  if (type === "price") {
+    document.getElementById("price-display").innerHTML =
+      `${data.price.toLocaleString()} <span>USDT</span>`;
+  }
+
+  if (type === "balance") {
+    document.getElementById("s-balance").textContent = data.balance.toFixed(2) + " U";
+    const diff = data.balance - data.start;
+    const el = document.getElementById("s-pnl");
+    el.textContent = (diff >= 0 ? "+" : "") + diff.toFixed(2) + " U";
+    el.className = "value " + (diff >= 0 ? "val-green" : "val-red");
+  }
+
+  if (type === "signal") {
+    const sig = data.sig;
+    const badge = document.getElementById("sig-badge");
+    badge.textContent = sig;
+    badge.className = "sig-badge sig-" + sig.toLowerCase();
+    document.getElementById("s-signal").textContent = sig;
+    document.getElementById("s-signal").className = "value " +
+      (sig==="LONG"?"val-green":sig==="SHORT"?"val-red":"val-neutral");
+    document.getElementById("sig-detail").textContent =
+      `RSI:${data.rsi.toFixed(1)}  EMA9:${Math.round(data.ef)}  BB上:${Math.round(data.bbUp)}  BB下:${Math.round(data.bbLo)}`;
+  }
+
+  if (type === "position") {
+    const card = document.getElementById("position-card");
+    if (!data) {
+      card.style.display = "none";
+      document.getElementById("s-pnl").textContent = "--";
+    } else {
+      card.style.display = "block";
+      const badge = document.getElementById("pos-dir-badge");
+      badge.textContent = data.dir;
+      badge.className = "pos-dir " + (data.dir==="LONG"?"dir-long":"dir-short");
+      document.getElementById("pos-entry").textContent = data.entry.toFixed(2);
+      document.getElementById("pos-sl").textContent    = data.sl;
+      document.getElementById("pos-tp").textContent    = data.tp;
+      const pnlEl = document.getElementById("pos-pnl");
+      pnlEl.textContent = (data.pPct>=0?"+":"") + data.pPct + "%";
+      pnlEl.style.color = data.pPct >= 0 ? "#68d391" : "#fc8181";
+    }
+  }
+
+  if (type === "stopped") {
+    ipcRenderer.emit("bot:stopped");
+  }
+});
+
+// ── 倒计时 ───────────────────────────
+function startCountdown() {
+  nextScanSec = 60;
+  if (nextScanTimer) clearInterval(nextScanTimer);
+  nextScanTimer = setInterval(() => {
+    nextScanSec--;
+    if (nextScanSec <= 0) nextScanSec = 60;
+    document.getElementById("s-next").textContent = nextScanSec + "s";
+  }, 1000);
+}
+function resetCountdown() { nextScanSec = 60; }
+
+// ── 日志 ─────────────────────────────
+function appendLog(level, msg) {
+  const box = document.getElementById("log-box");
+  const line = document.createElement("div");
+  line.className = "log-" + level;
+  line.textContent = msg;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+  // 最多保留 500 行
+  while (box.children.length > 500) box.removeChild(box.firstChild);
+}
+function clearLog() { document.getElementById("log-box").innerHTML = ""; }
+
+// ── 配置持久化 ────────────────────────
+function saveConfig() {
+  const cfg = getConfig();
+  // 不保存 API Secret 到磁盘（安全）
+  const toSave = { ...cfg, apiSecret: "" };
+  ipcRenderer.send("config:save", toSave);
+  appendLog("info", "配置已保存（Secret 不保存到磁盘）");
+}
+
+ipcRenderer.on("config:loaded", (_, cfg) => {
+  if (!cfg) return;
+  if (cfg.apiKey) document.getElementById("apiKey").value = cfg.apiKey;
+  document.getElementById("capital").value   = cfg.capital   || 500;
+  document.getElementById("takePct").value   = cfg.takePct   || 3;
+  document.getElementById("stopPct").value   = cfg.stopPct   || 2;
+  document.getElementById("leverage").value  = cfg.leverage  || 5;
+  document.getElementById("posRatio").value  = cfg.posRatio  || 20;
+  document.getElementById("maxLoss").value   = cfg.maxLoss   || 20;
+  document.getElementById("dryRun").checked  = cfg.dryRun !== false;
+  document.getElementById("takePctVal").textContent  = cfg.takePct  || 3;
+  document.getElementById("stopPctVal").textContent  = cfg.stopPct  || 2;
+  document.getElementById("leverageVal").textContent = cfg.leverage || 5;
+  document.getElementById("posRatioVal").textContent = cfg.posRatio || 20;
+  document.getElementById("maxLossVal").textContent  = cfg.maxLoss  || 20;
+  updateMath();
+});
+
+ipcRenderer.send("config:load");
+
+// ── 实时数学预期 ──────────────────────
+function updateMath() {
+  const cap      = parseFloat(document.getElementById("capital").value) || 500;
+  const takePct  = parseFloat(document.getElementById("takePct").value);
+  const stopPct  = parseFloat(document.getElementById("stopPct").value);
+  const lev      = parseInt(document.getElementById("leverage").value);
+  const posR     = parseInt(document.getElementById("posRatio").value) / 100;
+  const sz       = cap * posR;
+  const winU     = (sz * lev * takePct / 100).toFixed(2);
+  const lossU    = (sz * lev * stopPct / 100).toFixed(2);
+  const feeU     = (sz * lev * 0.0007 * 2).toFixed(2);
+  const minWR    = ((parseFloat(lossU)+parseFloat(feeU))/(parseFloat(winU)+parseFloat(lossU))*100).toFixed(1);
+  const rr       = (takePct / stopPct).toFixed(1);
+  document.getElementById("math-info").innerHTML =
+    `每笔名义: <b style="color:#f7931a">${(sz*lev).toFixed(0)} USDT</b><br>`+
+    `每笔赚: <b style="color:#68d391">+${winU} U</b>  亏: <b style="color:#fc8181">-${lossU} U</b><br>`+
+    `手续费: ${feeU} U  盈亏比: 1:${rr}<br>`+
+    `<b>最低盈利胜率: >${minWR}%</b>`;
+}
+
+// 监听参数变化实时更新数学预期
+["takePct","stopPct","leverage","posRatio","capital"].forEach(id => {
+  document.getElementById(id).addEventListener("input", updateMath);
+});
+updateMath();
+
+// 启动日志
+appendLog("info", "界面已就绪，填写参数后点击「启动机器人」");
+appendLog("info", "建议先开启「模拟模式」观察信号后再真实交易");
+</script>
+</body>
+</html>

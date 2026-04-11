@@ -1,0 +1,268 @@
+{
+  "company": "广州市科万电子科技有限公司",
+  "brand": "帝拓音频",
+  "categories": [
+    {
+      "id": "gonggongguangbo",
+      "name": "公共广播系统",
+      "path": "/a/Product/gonggongguangboxitong/",
+      "subcategories": [
+        {
+          "id": "wangluoguangbo",
+          "name": "网络广播系统",
+          "path": "/a/Product/gonggongguangboxitong/wangluoguangboxitong/",
+          "products": [
+            {"name": "网络防爆对讲终端N-TEL30", "image": "/uploads/allimg/20240508/1-24050R22610241.jpg"},
+            {"name": "全国产化网络广播服务器N-C900", "image": "/uploads/allimg/20240201/1-2402011114191A.jpg"},
+            {"name": "IP网络音频采集器 N-CJ4", "image": "/uploads/allimg/20230604/1-23060416131L64.jpg"},
+            {"name": "N-AL32 三十二路网络报警器", "image": "/uploads/allimg/20220830/1-220S01S621917.jpg"},
+            {"name": "N-AL16 十六路网络报警器", "image": "/uploads/allimg/20220830/1-220S01QR3c6.jpg"},
+            {"name": "N-TS01 网络广播卫星校时服务器", "image": "/uploads/allimg/20220830/1-220S01P629318.jpg"}
+          ]
+        },
+        {
+          "id": "zhinenguangbo",
+          "name": "智能广播设备",
+          "path": "/a/Product/gonggongguangboxitong/zhinenshuziguangbo/",
+          "products": [
+            {"name": "四通道定压数字功放", "image": "/uploads/allimg/20240520/1-240520104359160.jpg"},
+            {"name": "两通道定压数字功放", "image": "/uploads/allimg/20240520/1-240520102JR36.jpg"},
+            {"name": "1U数字定压功放", "image": "/uploads/allimg/20240424/1-240424143049434.jpg"},
+            {"name": "大功率定压数字功放", "image": ""},
+            {"name": "USB蓝牙四分区音量独调合并式功率放大器", "image": ""},
+            {"name": "MP3蓝牙1U数字定压功放", "image": ""}
+          ]
+        },
+        {
+          "id": "tianhuayangshengqi",
+          "name": "天花扬声器",
+          "path": "/a/Product/gonggongguangboxitong/tianhuayangshengqi/",
+          "products": [
+            {"name": "CL-D610 CL-D620悬吊式扬声器（吊绳）", "image": "/uploads/allimg/20230330/1-230330125005552.jpg"},
+            {"name": "CL-D511 吊球式扬声器（吊绳）", "image": "/uploads/allimg/20230330/1-230330124I3O7.jpg"},
+            {"name": "CL-D510 吊球式扬声器（吊绳）", "image": "/uploads/allimg/20230330/1-230330124U1240.jpg"},
+            {"name": "CL-D515T 同轴吊球扬声器（吊杆）", "image": "/uploads/allimg/181031/1-1Q031133A50-L.jpg"},
+            {"name": "CL-Q 嵌入式扬声器", "image": "/uploads/allimg/180612/1-1P612094J00-L.jpg"},
+            {"name": "CL-808F 8＂HIFI吸顶扬声器", "image": "/uploads/allimg/180517/1-1P51F934390-L.jpg"}
+          ]
+        },
+        {
+          "id": "shinawayinzhu",
+          "name": "室内外音柱",
+          "path": "/a/Product/gonggongguangboxitong/shinawaiyinzhu/",
+          "products": [
+            {"name": "CL-C30 CL-C60 3寸室外音柱", "image": ""},
+            {"name": "CL-T 高保真室外音柱", "image": ""},
+            {"name": "CL-B系列室外音柱", "image": ""},
+            {"name": "CL-M 系列室外音柱", "image": ""},
+            {"name": "CL-S系列室外音柱", "image": ""}
+          ]
+        },
+        {
+          "id": "haojiaoyangshengqi",
+          "name": "号角扬声器",
+          "path": "/a/Product/gonggongguangboxitong/haojiaoyangshengqi/",
+          "products": [
+            {"name": "S-H30 高音号角扬声器", "image": "/uploads/allimg/190329/1-1Z3291216410-L.jpg"},
+            {"name": "S-HT50 高清号角", "image": "/uploads/allimg/190329/1-1Z329111I30-L.jpg"},
+            {"name": "S-HW50 双单元宽域号角", "image": "/uploads/allimg/190329/1-1Z3291116320-L.jpg"},
+            {"name": "S-HW30 宽域号角", "image": "/uploads/allimg/190329/1-1Z3291115110-L.jpg"},
+            {"name": "S-HL 远程大型号角系列", "image": "/uploads/allimg/190329/1-1Z329110Q20-L.jpg"}
+          ]
+        },
+        {
+          "id": "biguayangshengqi",
+          "name": "壁挂扬声器",
+          "path": "/a/Product/gonggongguangboxitong/biguayangshengqi/",
+          "products": [
+            {"name": "防水壁挂扬声器 CW65F", "image": ""},
+            {"name": "CW-6系列壁挂扬声器", "image": ""},
+            {"name": "CW-2系列时款壁挂音箱", "image": ""},
+            {"name": "CW-06 壁挂扬声器", "image": ""},
+            {"name": "CW-08壁挂扬声器", "image": ""},
+            {"name": "CW340 6＂背景音乐/会议音箱", "image": ""}
+          ]
+        },
+        {
+          "id": "caodiyangshengqi",
+          "name": "草地/艺术扬声器",
+          "path": "/a/Product/gonggongguangboxitong/caodi_yishuyangshengqi/",
+          "products": [
+            {"name": "GC618 仿岩石草坪扬声器", "image": ""},
+            {"name": "GC10 树牌扬声器", "image": ""},
+            {"name": "gc7 卡通造型扬声器", "image": ""},
+            {"name": "GC515 仿岩石草地扬声器", "image": ""},
+            {"name": "GC15 仿岩石草地扬声器", "image": ""},
+            {"name": "GC11 卡通草地扬声器", "image": ""}
+          ]
+        },
+        {
+          "id": "chuantongguangbo",
+          "name": "传统广播设备",
+          "path": "/a/Product/gonggongguangboxitong/chuantongguangboshebei/",
+          "products": [
+            {"name": "S-811P 八通道前置放大器", "image": ""},
+            {"name": "音量控制器", "image": ""},
+            {"name": "S-TC800 多功能数字智能控制中心", "image": ""},
+            {"name": "S-28S 电源时序器", "image": ""},
+            {"name": "S-12M 十路监听器", "image": ""},
+            {"name": "S-25L 避雷器", "image": ""}
+          ]
+        },
+        {
+          "id": "yinyuanxilie",
+          "name": "音源系列",
+          "path": "/a/Product/gonggongguangboxitong/yinyuanxilie/",
+          "products": [
+            {"name": "ST-TC500 定时控制主控机", "image": ""},
+            {"name": "S-TC203 触屏式定时控制主控机", "image": ""},
+            {"name": "S-TC300 定时控制主控机", "image": ""},
+            {"name": "S-S-ONE 多音源播放器", "image": ""},
+            {"name": "MIC1 电容式广播话筒（四声前凑音）", "image": ""},
+            {"name": "MIC2 电容式广播话筒（二声前凑音）", "image": ""}
+          ]
+        },
+        {
+          "id": "youyuanyangshengqi",
+          "name": "有源扬声器",
+          "path": "/a/Product/gonggongguangboxitong/youyuanyangshengqi/",
+          "products": [
+            {"name": "CL-LY20 CL-LY40有源音柱", "image": ""},
+            {"name": "BL-C5x 蓝牙天花扬声器（带副箱）", "image": ""},
+            {"name": "BL-C51 蓝牙天花扬声器", "image": ""}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "zhuanyeyinxiang",
+      "name": "专业音响系统",
+      "path": "/a/Product/zhuanyeyinxiangxitong/",
+      "subcategories": [
+        {
+          "id": "xianzhenyangshengqi",
+          "name": "线阵扬声器",
+          "path": "/a/Product/zhuanyeyinxiangxitong/xianzhenyangshengqi/",
+          "products": [
+            {"name": "双12寸线阵音箱低频扬声器TWL-328", "image": "/uploads/allimg/20231118/1-23111Q50923403.jpg"},
+            {"name": "双12寸线阵音箱 TWL-312", "image": "/uploads/allimg/20231118/1-23111Q50100304.jpg"},
+            {"name": "KW点声源线阵系统", "image": "/uploads/allimg/201012/1-2010121T6010-L.jpg"},
+            {"name": "TWL-110 10寸多功能线阵音箱", "image": "/uploads/allimg/190714/1-1ZG40111440-L.jpg"},
+            {"name": "TWL-108 8寸多功能线阵音箱", "image": "/uploads/allimg/190714/1-1ZG40101270-L.jpg"},
+            {"name": "TWL12 线阵系列", "image": "/uploads/allimg/190525/1-1Z5251143240-L.jpg"}
+          ]
+        },
+        {
+          "id": "yangshengqi",
+          "name": "专业音箱",
+          "path": "/a/Product/zhuanyeyinxiangxitong/yangshengqi/",
+          "products": [
+            {"name": "HLJ全天候紧凑型同轴音箱", "image": "/uploads/allimg/20240508/1-24050R20SEQ.jpg"},
+            {"name": "TL281 双8寸专业音箱", "image": "/uploads/allimg/20230322/1-2303221T104M5.jpg"},
+            {"name": "TL261 双6寸专业音箱", "image": "/uploads/allimg/20230322/1-2303221T104M5.jpg"},
+            {"name": "PL-8 8寸防水多功能专业音箱", "image": "/uploads/allimg/20230330/1-230330125353c3.jpg"},
+            {"name": "PL-10 10寸防水多功能专业音箱", "image": "/uploads/allimg/20230330/1-230330125353c3.jpg"},
+            {"name": "PL-12 12寸防水多功能专业音箱", "image": "/uploads/allimg/20230330/1-230330125353c3.jpg"}
+          ]
+        },
+        {
+          "id": "gonglvfangdaqi",
+          "name": "功率放大器",
+          "path": "/a/Product/zhuanyeyinxiangxitong/gonglvfangdaqi/",
+          "products": [
+            {"name": "DP4.06 DP4.08四通道数字功放", "image": "/uploads/allimg/200709/1-200F91301190-L.jpg"},
+            {"name": "DP4数字功放系列", "image": "/uploads/allimg/190320/1-1Z3202211490-L.jpg"},
+            {"name": "QM2 大功率专业功放系列", "image": "/uploads/190320/1-1Z320192Z3W1.jpg"},
+            {"name": "QM4 4通道专业功率放大器", "image": "/uploads/190828/1-1ZRR13501a1.jpg"},
+            {"name": "QM2专业功率放大器系列", "image": "/uploads/190827/1-1ZRH35A9E6.jpg"},
+            {"name": "QT系列专业功放", "image": "/uploads/allimg/181025/1-1Q0251021570-L.jpg"}
+          ]
+        },
+        {
+          "id": "diaoyintai",
+          "name": "调音台",
+          "path": "/a/Product/zhuanyeyinxiangxitong/diaoyintai/",
+          "products": [
+            {"name": "24路四编组调音台 DQX24", "image": ""},
+            {"name": "16路四编组调音台 DQX16", "image": ""},
+            {"name": "12路四编组调音台DQX12", "image": ""},
+            {"name": "MD22G 22路数字调音台", "image": ""},
+            {"name": "MD12 12路数字调音台", "image": ""},
+            {"name": "MD10 10路数字调音台", "image": ""}
+          ]
+        },
+        {
+          "id": "zhoubianshebei",
+          "name": "周边设备",
+          "path": "/a/Product/zhuanyeyinxiangxitong/zhoubianshebei/",
+          "products": [
+            {"name": "4进8出处理器DQF48", "image": ""},
+            {"name": "PRO16 16路大功率电源时序器", "image": ""},
+            {"name": "5寸监听音箱 JT525", "image": ""},
+            {"name": "DPX24 2进4出音频处理器", "image": ""},
+            {"name": "DPX48 4进8出音频处理器", "image": ""},
+            {"name": "SSP10 电源时序器", "image": ""}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "huiyixitong",
+      "name": "会议系统",
+      "path": "/a/Product/huiyixitong/",
+      "subcategories": [
+        {
+          "id": "huiyiyangshengqi",
+          "name": "会议扬声器系列",
+          "path": "/a/Product/huiyixitong/huiyiyangshengqixilie/",
+          "products": [
+            {"name": "多功能阵列式线柱扬声器TL-454H", "image": "/uploads/allimg/20230418/1-23041R00243440.jpg"},
+            {"name": "会议音箱 M161", "image": "/uploads/allimg/20220928/1-22092Q605191M.jpg"},
+            {"name": "会议音箱 M261", "image": "/uploads/allimg/20220928/1-22092Q60634K6.jpg"},
+            {"name": "多功能音箱 M243", "image": "/uploads/allimg/210813/1-210Q31QJ80-L.jpg"},
+            {"name": "多功能音箱 M143", "image": "/uploads/allimg/210813/1-210Q31Q5290-L.jpg"},
+            {"name": "M508 双高音高保真吸顶扬声器", "image": "/uploads/allimg/201207/1-20120G60Q90-L.jpg"}
+          ]
+        },
+        {
+          "id": "wuxianhuiyi",
+          "name": "无线会议系统",
+          "path": "/a/Product/huiyixitong/wuxianhuiyixitong/",
+          "products": [
+            {"name": "无线会议系统单元 MT911CW MT911DW", "image": ""},
+            {"name": "无线会议系统单元 MT910CW MT910DW", "image": ""},
+            {"name": "无线会议系统主控机 MT910W", "image": ""}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wuxianmaikefeng",
+      "name": "话筒系列",
+      "path": "/a/Product/wuxianmaikefeng/",
+      "subcategories": [
+        {
+          "id": "Uduanwuxianmai",
+          "name": "U段无线麦",
+          "path": "/a/Product/wuxianmaikefeng/Uduanwuxianmai/",
+          "products": [
+            {"name": "真分集无线话筒U1030", "image": ""},
+            {"name": "一拖四真分集无线演绎话筒U4060", "image": ""},
+            {"name": "单路有源天线放大器U-100F", "image": ""},
+            {"name": "U-M4 UHF一拖四工程无线麦克风", "image": ""},
+            {"name": "UA2 U段一拖二无线话筒", "image": ""},
+            {"name": "U-M2 UHF一拖二工程无线麦克风", "image": ""}
+          ]
+        }
+      ]
+    }
+  ],
+  "statistics": {
+    "totalCategories": 4,
+    "totalSubcategories": 21,
+    "totalProducts": 95,
+    "productsWithImages": 42,
+    "productsWithoutImages": 53,
+    "publicBroadcastSubcategories": 10
+  }
+}

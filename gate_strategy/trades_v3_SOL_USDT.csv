@@ -1,0 +1,3 @@
+entryTime,exitTime,dir,entry,exit,size,pnl,win,reason,holdBars
+2025-12-05T16:00,2025-12-07T16:00,SHORT,132.4,134.39,33.33,-2.6214,false,止损,12
+2026-02-17T12:00,2026-02-17T16:00,SHORT,83.75,85.01,32.81,-2.5829,false,止损,1

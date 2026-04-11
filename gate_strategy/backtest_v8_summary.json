@@ -1,0 +1,202 @@
+{
+  "version": "v8-1h-3pct",
+  "cfg": {
+    "LEVERAGE": 5,
+    "STOP_PCT": 0.01,
+    "TAKE_PCT": 0.03,
+    "POSITION_RATIO": 0.3,
+    "EMA_FAST": 9,
+    "EMA_SLOW": 21,
+    "EMA_TREND": 55,
+    "RSI_PERIOD": 14,
+    "RSI_OB": 70,
+    "RSI_OS": 30,
+    "ATR_MIN_PCT": 0.003,
+    "BB_PERIOD": 20,
+    "BB_STD": 2,
+    "INTERVAL": "1h",
+    "DAYS": 180,
+    "COMPOUND": true
+  },
+  "symbols": [
+    "BTC_USDT",
+    "ETH_USDT",
+    "SOL_USDT"
+  ],
+  "results": [
+    {
+      "sym": "BTC_USDT",
+      "total": 214,
+      "winCount": 48,
+      "lossCount": 166,
+      "winRate": 22.4,
+      "avgWin": 5.64,
+      "avgLoss": 2.1,
+      "profitFactor": 0.78,
+      "maxDD": 49.8,
+      "sharpe": -7.23,
+      "finalCap": 89.54,
+      "roi": -46.28,
+      "tPnl": -77.13,
+      "initCap": 166.66666666666666,
+      "totalFee": 29.23,
+      "monthly": {
+        "2025-09": {
+          "pnl": -8.772099999999998,
+          "win": 1,
+          "loss": 6
+        },
+        "2025-10": {
+          "pnl": -1.9256999999999933,
+          "win": 11,
+          "loss": 30
+        },
+        "2025-11": {
+          "pnl": -31.026600000000002,
+          "win": 5,
+          "loss": 27
+        },
+        "2025-12": {
+          "pnl": 1.8824000000000036,
+          "win": 9,
+          "loss": 23
+        },
+        "2026-01": {
+          "pnl": 1.9143999999999997,
+          "win": 9,
+          "loss": 23
+        },
+        "2026-02": {
+          "pnl": -22.849199999999996,
+          "win": 9,
+          "loss": 36
+        },
+        "2026-03": {
+          "pnl": -16.3537,
+          "win": 4,
+          "loss": 21
+        }
+      },
+      "mxW": 3,
+      "mxL": 27,
+      "avgHold": 13.7,
+      "avgPerDay": 1.7
+    },
+    {
+      "sym": "ETH_USDT",
+      "total": 304,
+      "winCount": 70,
+      "lossCount": 234,
+      "winRate": 23,
+      "avgWin": 3.89,
+      "avgLoss": 1.55,
+      "profitFactor": 0.75,
+      "maxDD": 63.51,
+      "sharpe": -8.13,
+      "finalCap": 76.76,
+      "roi": -53.94,
+      "tPnl": -89.91,
+      "initCap": 166.66666666666666,
+      "totalFee": 30.21,
+      "monthly": {
+        "2025-09": {
+          "pnl": -7.146199999999995,
+          "win": 5,
+          "loss": 16
+        },
+        "2025-10": {
+          "pnl": -50.3077,
+          "win": 10,
+          "loss": 50
+        },
+        "2025-11": {
+          "pnl": -18.958299999999998,
+          "win": 14,
+          "loss": 49
+        },
+        "2025-12": {
+          "pnl": -20.6725,
+          "win": 9,
+          "loss": 40
+        },
+        "2026-01": {
+          "pnl": -3.7411,
+          "win": 10,
+          "loss": 30
+        },
+        "2026-02": {
+          "pnl": 8.5366,
+          "win": 16,
+          "loss": 35
+        },
+        "2026-03": {
+          "pnl": 2.381700000000003,
+          "win": 6,
+          "loss": 14
+        }
+      },
+      "mxW": 4,
+      "mxL": 16,
+      "avgHold": 8.1,
+      "avgPerDay": 2.1
+    },
+    {
+      "sym": "SOL_USDT",
+      "total": 325,
+      "winCount": 70,
+      "lossCount": 255,
+      "winRate": 21.5,
+      "avgWin": 4.82,
+      "avgLoss": 1.76,
+      "profitFactor": 0.75,
+      "maxDD": 71.47,
+      "sharpe": -7.83,
+      "finalCap": 54.64,
+      "roi": -67.22,
+      "tPnl": -112.03,
+      "initCap": 166.66666666666666,
+      "totalFee": 37.44,
+      "monthly": {
+        "2025-09": {
+          "pnl": 21.7532,
+          "win": 10,
+          "loss": 19
+        },
+        "2025-10": {
+          "pnl": -58.76120000000002,
+          "win": 12,
+          "loss": 55
+        },
+        "2025-11": {
+          "pnl": -17.132799999999996,
+          "win": 11,
+          "loss": 38
+        },
+        "2025-12": {
+          "pnl": -16.437399999999993,
+          "win": 11,
+          "loss": 39
+        },
+        "2026-01": {
+          "pnl": -29.206599999999995,
+          "win": 7,
+          "loss": 41
+        },
+        "2026-02": {
+          "pnl": 0.5773000000000006,
+          "win": 16,
+          "loss": 42
+        },
+        "2026-03": {
+          "pnl": -12.819799999999999,
+          "win": 3,
+          "loss": 21
+        }
+      },
+      "mxW": 4,
+      "mxL": 15,
+      "avgHold": 6.6,
+      "avgPerDay": 2.1
+    }
+  ]
+}

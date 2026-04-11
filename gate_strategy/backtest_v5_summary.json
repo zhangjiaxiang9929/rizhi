@@ -1,0 +1,146 @@
+{
+  "version": "v5-trend-aware",
+  "strategy": {
+    "LEVERAGE": 5,
+    "STOP_PCT": 0.012,
+    "REWARD_RATIO": 4,
+    "POSITION_RATIO": 0.15,
+    "EMA_FAST": 9,
+    "EMA_SLOW": 21,
+    "EMA_TREND": 50,
+    "EMA_DAY": 20,
+    "RSI_BEAR_SHORT": [
+      40,
+      65
+    ],
+    "RSI_BULL_LONG": [
+      35,
+      60
+    ],
+    "ADX_MIN": 20,
+    "VOL_MULT": 1,
+    "INTERVAL_MAIN": "4h",
+    "INTERVAL_TREND": "1d",
+    "DAYS": 180
+  },
+  "symbols": [
+    "BTC_USDT",
+    "ETH_USDT",
+    "SOL_USDT",
+    "DOGE_USDT",
+    "XRP_USDT"
+  ],
+  "results": [
+    {
+      "symbol": "BTC_USDT",
+      "total": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "avgWin": 0,
+      "avgLoss": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "sharpe": 0,
+      "finalCap": 100,
+      "roi": 0,
+      "totalPnl": 0,
+      "initCap": 100,
+      "trendLog": {
+        "BEAR": 636,
+        "BULL": 102,
+        "RANGE": 232,
+        "UNKNOWN": 61
+      }
+    },
+    {
+      "symbol": "ETH_USDT",
+      "total": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "avgWin": 0,
+      "avgLoss": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "sharpe": 0,
+      "finalCap": 100,
+      "roi": 0,
+      "totalPnl": 0,
+      "initCap": 100,
+      "trendLog": {
+        "BEAR": 630,
+        "BULL": 96,
+        "RANGE": 244,
+        "UNKNOWN": 61
+      }
+    },
+    {
+      "symbol": "SOL_USDT",
+      "total": 1,
+      "winCount": 0,
+      "lossCount": 1,
+      "winRate": 0,
+      "avgWin": 0,
+      "avgLoss": 0.95,
+      "profitFactor": 0,
+      "maxDD": 0.95,
+      "sharpe": -44.57,
+      "finalCap": 99.05,
+      "roi": -0.95,
+      "totalPnl": -0.95,
+      "initCap": 100,
+      "trendLog": {
+        "BEAR": 706,
+        "BULL": 84,
+        "RANGE": 180,
+        "UNKNOWN": 61
+      }
+    },
+    {
+      "symbol": "DOGE_USDT",
+      "total": 0,
+      "winCount": 0,
+      "lossCount": 0,
+      "winRate": 0,
+      "avgWin": 0,
+      "avgLoss": 0,
+      "profitFactor": 0,
+      "maxDD": 0,
+      "sharpe": 0,
+      "finalCap": 100,
+      "roi": 0,
+      "totalPnl": 0,
+      "initCap": 100,
+      "trendLog": {
+        "BEAR": 796,
+        "BULL": 54,
+        "RANGE": 120,
+        "UNKNOWN": 61
+      }
+    },
+    {
+      "symbol": "XRP_USDT",
+      "total": 2,
+      "winCount": 1,
+      "lossCount": 1,
+      "winRate": 50,
+      "avgWin": 3.52,
+      "avgLoss": 0.95,
+      "profitFactor": 3.7,
+      "maxDD": 0.95,
+      "sharpe": 26.87,
+      "finalCap": 102.56,
+      "roi": 2.56,
+      "totalPnl": 2.56,
+      "initCap": 100,
+      "trendLog": {
+        "BEAR": 736,
+        "BULL": 78,
+        "RANGE": 156,
+        "UNKNOWN": 61
+      }
+    }
+  ],
+  "generatedAt": "2026-03-12T15:04:59.503Z"
+}

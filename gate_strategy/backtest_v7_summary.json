@@ -1,0 +1,154 @@
+{
+  "version": "v7-optimized",
+  "cfg": {
+    "LEVERAGE": 5,
+    "STOP_PCT": 0.008,
+    "TAKE_PCT": 0.015,
+    "POSITION_RATIO": 0.3,
+    "EMA_FAST": 5,
+    "EMA_SLOW": 13,
+    "RSI_PERIOD": 7,
+    "RSI_OB": 68,
+    "RSI_OS": 32,
+    "ATR_MIN_PCT": 0.002,
+    "BB_PERIOD": 20,
+    "BB_STD": 2,
+    "INTERVAL": "15m",
+    "DAYS": 180,
+    "COMPOUND": true
+  },
+  "breakEven": {
+    "winPerTrade": 2.25,
+    "lossPerTrade": 1.2,
+    "feePerTrade": 0.21,
+    "minWR": 38.5
+  },
+  "results": [
+    {
+      "symbol": "BTC_USDT",
+      "total": 344,
+      "winCount": 120,
+      "lossCount": 224,
+      "winRate": 34.9,
+      "avgWin": 3.095,
+      "avgLoss": 1.9012,
+      "profitFactor": 0.87,
+      "maxDD": 44.39,
+      "sharpe": -8.6,
+      "finalCap": 112.21,
+      "roi": -32.67,
+      "totalPnl": -54.46,
+      "initCap": 166.66666666666666,
+      "totalFee": 52.44,
+      "monthly": {
+        "2025-12": {
+          "pnl": 16.259900000000005,
+          "win": 31,
+          "loss": 43
+        },
+        "2026-01": {
+          "pnl": -44.22980000000001,
+          "win": 21,
+          "loss": 55
+        },
+        "2026-02": {
+          "pnl": -11.5215,
+          "win": 51,
+          "loss": 89
+        },
+        "2026-03": {
+          "pnl": -14.967899999999997,
+          "win": 17,
+          "loss": 37
+        }
+      },
+      "maxWin": 5,
+      "maxLoss": 15,
+      "avgPerDay": 3.8
+    },
+    {
+      "symbol": "ETH_USDT",
+      "total": 500,
+      "winCount": 173,
+      "lossCount": 327,
+      "winRate": 34.6,
+      "avgWin": 2.5353,
+      "avgLoss": 1.5779,
+      "profitFactor": 0.85,
+      "maxDD": 60.83,
+      "sharpe": -9.98,
+      "finalCap": 89.32,
+      "roi": -46.41,
+      "totalPnl": -77.35,
+      "initCap": 166.66666666666666,
+      "totalFee": 62.98,
+      "monthly": {
+        "2025-12": {
+          "pnl": -1.9814000000000016,
+          "win": 44,
+          "loss": 72
+        },
+        "2026-01": {
+          "pnl": -71.7195,
+          "win": 30,
+          "loss": 92
+        },
+        "2026-02": {
+          "pnl": -10.927100000000005,
+          "win": 69,
+          "loss": 121
+        },
+        "2026-03": {
+          "pnl": 7.2785,
+          "win": 30,
+          "loss": 42
+        }
+      },
+      "maxWin": 6,
+      "maxLoss": 15,
+      "avgPerDay": 5.3
+    },
+    {
+      "symbol": "SOL_USDT",
+      "total": 539,
+      "winCount": 185,
+      "lossCount": 354,
+      "winRate": 34.3,
+      "avgWin": 2.5571,
+      "avgLoss": 1.5788,
+      "profitFactor": 0.85,
+      "maxDD": 63.06,
+      "sharpe": -10.4,
+      "finalCap": 80.81,
+      "roi": -51.51,
+      "totalPnl": -85.85,
+      "initCap": 166.66666666666666,
+      "totalFee": 68.13,
+      "monthly": {
+        "2025-12": {
+          "pnl": -31.433599999999988,
+          "win": 44,
+          "loss": 87
+        },
+        "2026-01": {
+          "pnl": -11.233799999999995,
+          "win": 51,
+          "loss": 89
+        },
+        "2026-02": {
+          "pnl": -41.29209999999999,
+          "win": 62,
+          "loss": 131
+        },
+        "2026-03": {
+          "pnl": -1.8926000000000023,
+          "win": 28,
+          "loss": 47
+        }
+      },
+      "maxWin": 4,
+      "maxLoss": 19,
+      "avgPerDay": 5.4
+    }
+  ]
+}

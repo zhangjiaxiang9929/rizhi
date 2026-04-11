@@ -1,0 +1,12 @@
+{
+  "pos": {
+    "dir": "SHORT",
+    "entry": 70000,
+    "sl": 71400,
+    "tp": 67900,
+    "contracts": 71,
+    "openTime": 1773330762
+  },
+  "startCap": 500,
+  "peakCap": 500
+}

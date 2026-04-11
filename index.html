@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Gate.io BTC 机器人 v14</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Microsoft YaHei","Segoe UI",sans-serif; background:#0f1117; color:#e2e8f0; height:100vh; overflow:hidden; display:flex; flex-direction:column; }
+#topbar { display:flex; align-items:center; justify-content:space-between; background:#1a1d2e; padding:0 16px; border-bottom:1px solid #2d3748; gap:10px; flex-shrink:0; height:48px; }
+.logo { font-size:14px; font-weight:700; color:#f7931a; letter-spacing:1px; white-space:nowrap; }
+#topbar-center { display:flex; align-items:center; gap:14px; flex:1; justify-content:center; }
+#price-display { font-size:24px; font-weight:700; color:#f7931a; transition:color .25s; }
+#price-display span { font-size:12px; color:#718096; margin-left:3px; }
+#price-display.up { color:#68d391; } #price-display.down { color:#fc8181; }
+#conn-badge { font-size:12px; font-weight:600; padding:3px 10px; border-radius:20px; }
+.conn-ok { background:#1a2d1a; color:#68d391; border:1px solid #38a169; }
+.conn-err { background:#2d1515; color:#fc8181; border:1px solid #e53e3e; }
+#topbar-right { display:flex; align-items:center; gap:10px; }
+#runtime-display { font-size:12px; color:#718096; white-space:nowrap; }
+#status-pill { padding:3px 12px; border-radius:20px; font-size:12px; font-weight:600; white-space:nowrap; }
+.pill-stopped { background:#2d1515; color:#fc8181; border:1px solid #e53e3e; }
+.pill-running { background:#1a2d1a; color:#68d391; border:1px solid #38a169; }
+.pill-dry { background:#1a2440; color:#63b3ed; border:1px solid #3182ce; }
+#app { display:flex; flex:1; overflow:hidden; min-height:0; }
+#left-panel { background:#141720; border-right:1px solid #2d3748; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; width:282px; min-width:282px; flex-shrink:0; transition:width .25s,min-width .25s,padding .25s,border .25s; }
+#left-panel::-webkit-scrollbar{width:4px;}
+#left-panel::-webkit-scrollbar-thumb{background:#2d3748;border-radius:2px;}
+#left-panel.collapsed { width:0; min-width:0; padding:0; border:none; overflow:hidden; }
+#left-toggle { flex-shrink:0; background:#1a1d2e; border:1px solid #2d3748; border-left:none; border-radius:0 6px 6px 0; padding:10px 5px; cursor:pointer; color:#718096; font-size:12px; align-self:center; user-select:none; }
+#left-toggle:hover { color:#f7931a; border-color:#f7931a; }
+#right-panel { display:flex; flex-direction:column; overflow:hidden; min-width:0; flex:1; min-height:0; }
+.card { background:#1a1d2e; border:1px solid #2d3748; border-radius:8px; padding:11px; flex-shrink:0; }
+.card-title { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#718096; margin-bottom:9px; font-weight:600; }
+.form-row { margin-bottom:8px; }
+.form-row label { display:block; font-size:12px; color:#a0aec0; margin-bottom:3px; }
+.form-row input { width:100%; background:#0f1117; border:1px solid #2d3748; border-radius:5px; padding:6px 8px; color:#e2e8f0; font-size:13px; outline:none; transition:border-color .2s; }
+.form-row input:focus { border-color:#f7931a; }
+.form-row input[type=password] { letter-spacing:2px; }
+.slider-row { margin-bottom:8px; }
+.slider-row label { display:flex; justify-content:space-between; font-size:12px; color:#a0aec0; margin-bottom:3px; }
+input[type=range] { width:100%; accent-color:#f7931a; cursor:pointer; }
+.toggle-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.toggle-row span { font-size:12px; color:#a0aec0; }
+.toggle { position:relative; width:40px; height:22px; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; cursor:pointer; inset:0; background:#2d3748; border-radius:22px; transition:.3s; }
+.toggle-slider:before { content:""; position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#718096; border-radius:50%; transition:.3s; }
+.toggle input:checked + .toggle-slider { background:#2d5a2d; }
+.toggle input:checked + .toggle-slider:before { transform:translateX(18px); background:#68d391; }
+#btn-start { width:100%; padding:10px; border-radius:7px; border:none; font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; margin-top:3px; }
+#btn-start.start { background:linear-gradient(135deg,#f7931a,#e67e00); color:#fff; }
+#btn-start.start:hover { transform:translateY(-1px); filter:brightness(1.1); }
+#btn-start.stop { background:linear-gradient(135deg,#e53e3e,#c53030); color:#fff; }
+#btn-save { width:100%; padding:6px; border-radius:5px; border:1px solid #2d3748; background:transparent; color:#a0aec0; font-size:12px; cursor:pointer; margin-top:5px; }
+#btn-save:hover { border-color:#f7931a; color:#f7931a; }
+#btn-reset { width:100%; padding:6px; border-radius:5px; border:1px solid #2d3748; background:transparent; color:#718096; font-size:12px; cursor:pointer; margin-top:5px; }
+#btn-reset:hover { border-color:#63b3ed; color:#63b3ed; }
+.slider-inline { display:flex; align-items:center; gap:6px; }
+.slider-inline input[type=range] { flex:1; }
+.slider-numbox { width:52px; background:#0f1117; border:1px solid #2d3748; border-radius:5px; padding:3px 5px; color:#f7931a; font-size:13px; font-weight:700; outline:none; text-align:center; }
+.slider-unit { color:#718096; font-size:12px; min-width:14px; }
+#stats-bar { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:10px 14px; background:#141720; border-bottom:1px solid #2d3748; flex-shrink:0; }
+.stat-card { background:#1a1d2e; border:1px solid #2d3748; border-radius:7px; padding:8px 10px; }
+.stat-card .slabel { font-size:11px; color:#718096; margin-bottom:3px; }
+.stat-card .svalue { font-size:16px; font-weight:700; line-height:1.2; }
+.val-neutral{color:#e2e8f0;}.val-green{color:#68d391;}.val-red{color:#fc8181;}.val-orange{color:#f7931a;}.val-blue{color:#63b3ed;}
+#signal-row { display:flex; align-items:center; gap:8px; padding:7px 14px; background:#141720; border-bottom:1px solid #2d3748; flex-shrink:0; flex-wrap:wrap; }
+.sig-badge{padding:3px 11px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap;}
+.sig-hold{background:#1a1d2e;color:#718096;border:1px solid #2d3748;}
+.sig-long{background:#1a2d1a;color:#68d391;border:1px solid #38a169;}
+.sig-short{background:#2d1515;color:#fc8181;border:1px solid #e53e3e;}
+.mtf-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;white-space:nowrap;}
+.mtf-ok{background:#1a2d1a;color:#68d391;border:1px solid #2d5a2d;}
+.mtf-warn{background:#2d2515;color:#fbd38d;border:1px solid #744210;}
+.cool-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;white-space:nowrap;background:#1a1d2e;color:#718096;border:1px solid #4a5568;}
+#score-bar-wrap{display:flex;align-items:center;gap:6px;}
+#score-bar-bg{width:70px;height:7px;background:#2d3748;border-radius:4px;overflow:hidden;}
+#score-bar-fg{height:100%;border-radius:4px;transition:width .4s,background .4s;}
+#score-val{font-size:12px;font-weight:700;color:#f7931a;min-width:26px;}
+#sig-detail{font-size:12px;color:#718096;flex:1;}
+#last-scan-time{font-size:11px;color:#4a5568;white-space:nowrap;}
+#chart-wrap{background:#141720;border-bottom:1px solid #2d3748;flex-shrink:0;padding:5px 14px 6px;}
+#chart-toolbar{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+#chart-toolbar span{font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-right:4px;}
+.tf-btn{background:none;border:1px solid #2d3748;color:#718096;padding:2px 9px;border-radius:4px;font-size:11px;cursor:pointer;transition:all .15s;}
+.tf-btn:hover{border-color:#a0aec0;color:#a0aec0;}
+.tf-btn.active{background:#f7931a22;border-color:#f7931a;color:#f7931a;font-weight:700;}
+#chart-loading{font-size:11px;color:#4a5568;margin-left:6px;display:none;}
+#price-chart{width:100%;height:150px;display:block;cursor:crosshair;}
+#chart-tooltip{position:fixed;background:#1a1d2e;border:1px solid #2d3748;border-radius:5px;padding:5px 9px;font-size:11px;color:#e2e8f0;pointer-events:none;display:none;z-index:100;white-space:nowrap;}
+#position-card{display:none;background:#111827;border-top:2px solid #3182ce;border-bottom:1px solid #2d3748;padding:9px 14px;flex-shrink:0;}
+.pos-header{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:13px;font-weight:600;}
+.pos-dir{padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;}
+.dir-long{background:#1a2d1a;color:#68d391;border:1px solid #38a169;}
+.dir-short{background:#2d1515;color:#fc8181;border:1px solid #e53e3e;}
+#pos-duration{margin-left:auto;font-size:11px;color:#718096;}
+#trail-active{font-size:11px;color:#fbd38d;background:#2d2515;border:1px solid #744210;border-radius:4px;padding:2px 7px;}
+#breakeven-badge{font-size:11px;color:#68d391;background:#1a2d1a;border:1px solid #38a169;border-radius:4px;padding:2px 7px;display:none;}
+.pos-details{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;}
+.pi-label{font-size:11px;color:#718096;margin-bottom:2px;}
+.pi-value{font-size:14px;font-weight:600;}
+#manual-panel{display:none;border-top:1px solid #2d4a6e;padding-top:8px;margin-top:2px;}
+.mp-title{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#718096;font-weight:600;margin-bottom:6px;}
+.btn-group-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:7px;}
+.mp-btn{padding:6px 4px;border-radius:5px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.mp-btn:hover{transform:translateY(-1px);opacity:.9;}
+.btn-red{background:#2d1515;color:#fc8181;border:1px solid #e53e3e;}
+.btn-yellow{background:#2d2515;color:#fbd38d;border:1px solid #d69e2e;}
+.mp-input-row{display:flex;gap:6px;align-items:center;margin-bottom:4px;}
+.mp-input-row label{font-size:11px;color:#718096;width:44px;flex-shrink:0;}
+.mp-input-row input{flex:1;background:#0f1117;border:1px solid #2d3748;border-radius:5px;padding:5px 7px;color:#e2e8f0;font-size:12px;outline:none;}
+.mp-input-row button{padding:5px 11px;border-radius:5px;border:none;font-size:12px;font-weight:600;cursor:pointer;}
+#bottom-area{display:flex;flex-direction:column;overflow:hidden;padding:8px 14px 10px;gap:6px;flex:1;min-height:0;}
+.tab-bar{display:flex;gap:4px;border-bottom:1px solid #2d3748;padding-bottom:6px;flex-shrink:0;}
+.tab-btn{padding:4px 14px;border-radius:5px 5px 0 0;border:1px solid transparent;background:none;color:#718096;font-size:12px;font-weight:600;cursor:pointer;}
+.tab-btn.active{background:#1a1d2e;border-color:#2d3748;color:#e2e8f0;}
+.tab-content{display:none;flex:1;overflow:hidden;flex-direction:column;gap:6px;min-height:0;}
+.tab-content.active{display:flex;}
+.log-toolbar{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.log-toolbar span{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#718096;font-weight:600;margin-right:auto;}
+.filter-btn{background:none;border:1px solid #2d3748;color:#718096;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;}
+.filter-btn.active{border-color:#f7931a;color:#f7931a;}
+.small-btn{background:none;border:1px solid #2d3748;color:#718096;padding:3px 10px;border-radius:4px;font-size:11px;cursor:pointer;}
+.small-btn:hover{border-color:#a0aec0;}
+#log-box{flex:1;overflow-y:auto;background:#0f1117;border:1px solid #2d3748;border-radius:7px;padding:9px 10px;font-family:"Consolas","Courier New",monospace;font-size:12px;line-height:2;min-height:0;}
+#log-box::-webkit-scrollbar{width:4px;}#log-box::-webkit-scrollbar-thumb{background:#2d3748;border-radius:2px;}
+.log-info{color:#a0aec0;}.log-scan{color:#63b3ed;}.log-open{color:#fbd38d;font-weight:600;}.log-win{color:#68d391;font-weight:600;}.log-loss{color:#fc8181;}.log-warn{color:#f6ad55;}.log-error{color:#fc8181;font-weight:600;}.log-hidden{display:none!important;}
+#hist-top{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+#hist-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;flex:1;}
+.hs-card{background:#1a1d2e;border:1px solid #2d3748;border-radius:6px;padding:7px 9px;}
+.hs-label{font-size:10px;color:#718096;margin-bottom:2px;}
+.hs-val{font-size:15px;font-weight:700;}
+.hist-btn-group{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+#pnl-chart-wrap{flex-shrink:0;background:#0f1117;border:1px solid #2d3748;border-radius:7px;padding:6px 10px;}
+#pnl-chart-label{font-size:10px;color:#718096;margin-bottom:3px;}
+#pnl-chart{width:100%;height:46px;display:block;}
+#hist-table-wrap{flex:1;overflow-y:auto;background:#0f1117;border:1px solid #2d3748;border-radius:7px;min-height:0;}
+#hist-table-wrap::-webkit-scrollbar{width:4px;}#hist-table-wrap::-webkit-scrollbar-thumb{background:#2d3748;border-radius:2px;}
+#hist-table{width:100%;border-collapse:collapse;font-size:12px;}
+#hist-table thead th{position:sticky;top:0;background:#1a1d2e;color:#718096;font-size:10px;text-transform:uppercase;letter-spacing:1px;padding:6px 9px;text-align:left;border-bottom:1px solid #2d3748;font-weight:600;}
+#hist-table tbody tr:hover{background:#1a1d2e55;}
+#hist-table td{padding:6px 9px;border-bottom:1px solid #1e2235;}
+.td-long{color:#68d391;font-weight:600;}.td-short{color:#fc8181;font-weight:600;}.td-win{color:#68d391;font-weight:600;}.td-loss{color:#fc8181;}.td-open{color:#fbd38d;}
+#math-info{font-size:12px;color:#a0aec0;line-height:2;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+<div id="chart-tooltip"></div>
+<div id="topbar">
+<div class="logo">🤖 BTC v14</div>
+<div id="topbar-center">
+<div id="price-display">-- <span>USDT</span></div>
+<div id="conn-badge" class="conn-ok">● API 正常</div>
+</div>
+<div id="topbar-right">
+<div id="runtime-display" style="display:none">⏱ <span id="runtime-val">00:00:00</span></div>
+<div id="status-pill" class="status-pill pill-stopped">● 未运行</div>
+</div>
+</div>
+
+<div id="app">
+<div id="left-panel">
+<div class="card">
+<div class="card-title">🔑 API 配置</div>
+<div class="form-row"><label>API Key</label><input type="text" id="apiKey" placeholder="粘贴你的 API Key"></div>
+<div class="form-row"><label>API Secret</label><input type="password" id="apiSecret" placeholder="粘贴你的 API Secret"></div>
+<div class="toggle-row">
+<span>模拟模式</span>
+<label class="toggle"><input type="checkbox" id="dryRun" checked onchange="onDryRunToggle()"><span class="toggle-slider"></span></label>
+</div>
+</div>
+<div class="card">
+<div class="card-title">⚙️ 交易参数</div>
+<div class="form-row">
+<label>账户资金 (USDT) <span id="capital-hint" style="color:#f7931a;font-size:11px"></span></label>
+<input type="number" id="capital" value="500" min="50" oninput="updateMath()">
+</div>
+<div class="slider-row"><label>止盈 <span style="color:#718096;font-size:11px">0.5~20%</span></label>
+<div class="slider-inline"><input type="range" id="takePct" min="0.5" max="20" step="0.1" value="3" oninput="syncInput('takePct','takePctNum');updateMath()"><input type="number" id="takePctNum" value="3" min="0.5" max="20" step="0.1" class="slider-numbox" oninput="syncRange('takePctNum','takePct');updateMath()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>止损 <span style="color:#718096;font-size:11px">0.5~10%</span></label>
+<div class="slider-inline"><input type="range" id="stopPct" min="0.5" max="10" step="0.1" value="1.5" oninput="syncInput('stopPct','stopPctNum');updateMath()"><input type="number" id="stopPctNum" value="1.5" min="0.5" max="10" step="0.1" class="slider-numbox" oninput="syncRange('stopPctNum','stopPct');updateMath()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>杠杆 <span style="color:#718096;font-size:11px">1~20x</span></label>
+<div class="slider-inline"><input type="range" id="leverage" min="1" max="20" step="1" value="5" oninput="syncInput('leverage','leverageNum');updateMath()"><input type="number" id="leverageNum" value="5" min="1" max="20" step="1" class="slider-numbox" oninput="syncRange('leverageNum','leverage');updateMath()"><span class="slider-unit">x</span></div>
+</div>
+<div class="slider-row"><label>仓位比例 <span style="color:#718096;font-size:11px">1~100%</span></label>
+<div class="slider-inline"><input type="range" id="posRatio" min="1" max="100" step="1" value="20" oninput="syncInput('posRatio','posRatioNum');updateMath()"><input type="number" id="posRatioNum" value="20" min="1" max="100" step="1" class="slider-numbox" oninput="syncRange('posRatioNum','posRatio');updateMath()"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>风控熔断 <span style="color:#718096;font-size:11px">5~50%</span></label>
+<div class="slider-inline"><input type="range" id="maxLoss" min="5" max="50" step="1" value="15" oninput="syncInput('maxLoss','maxLossNum')"><input type="number" id="maxLossNum" value="15" min="5" max="50" step="1" class="slider-numbox" oninput="syncRange('maxLossNum','maxLoss')"><span class="slider-unit">%</span></div>
+</div>
+<div class="slider-row"><label>每日最大开仓 <span style="color:#718096;font-size:11px">1~20次</span></label>
+<div class="slider-inline"><input type="range" id="maxTradesPerDay" min="1" max="20" step="1" value="5" oninput="syncInput('maxTradesPerDay','maxTradesPerDayNum')"><input type="number" id="maxTradesPerDayNum" value="5" min="1" max="20" step="1" class="slider-numbox" oninput="syncRange('maxTradesPerDayNum','maxTradesPerDay')"><span class="slider-unit">次</span></div>
+</div>
+<div class="slider-row"><label>连亏减仓 <span style="color:#718096;font-size:11px">2~10次后减半</span></label>
+<div class="slider-inline"><input type="range" id="reduceAfterLosses" min="2" max="10" step="1" value="3" oninput="syncInput('reduceAfterLosses','reduceAfterLossesNum')"><input type="number" id="reduceAfterLossesNum" value="3" min="2" max="10" step="1" class="slider-numbox" oninput="syncRange('reduceAfterLossesNum','reduceAfterLosses')"><span class="slider-unit">次</span></div>
+</div>
+</div>
+<div class="card">
+<button id="btn-start" class="start" onclick="toggleBot()">▶ 启动机器人</button>
+<button id="btn-save" onclick="saveConfig()">💾 保存配置</button>
+<button id="btn-reset" onclick="resetDefaults()">↺ 恢复默认</button>
+</div>
+<div class="card">
+<div class="card-title">📐 数学预期</div>
+<div id="math-info"></div>
+</div>
+</div>
+
+<div id="left-toggle" onclick="toggleLeft()">◀</div>
+
+<div id="right-panel">
+<div id="stats-bar">
+<div class="stat-card"><div class="slabel">账户余额</div><div class="svalue val-orange" id="s-balance">--</div></div>
+<div class="stat-card"><div class="slabel">本次盈亏</div><div class="svalue val-neutral" id="s-pnl">--</div></div>
+<div class="stat-card"><div class="slabel">胜率</div><div class="svalue val-neutral" id="s-winrate">--%</div></div>
+<div class="stat-card"><div class="slabel">信号 / 评分</div><div class="svalue val-neutral" id="s-signal">HOLD</div></div>
+<div class="stat-card"><div class="slabel">下次扫描</div><div class="svalue val-neutral" id="s-next">--</div></div>
+</div>
+
+<div id="signal-row">
+<span id="sig-badge" class="sig-badge sig-hold">⏸ 观望</span>
+<span id="mtf-badge" class="mtf-badge mtf-warn" style="display:none"></span>
+<span id="cool-badge" class="cool-badge" style="display:none">⏸ 冷却中</span>
+<div id="score-bar-wrap" style="display:none">
+<span style="font-size:11px;color:#718096">评分</span>
+<div id="score-bar-bg"><div id="score-bar-fg" style="width:0%"></div></div>
+<span id="score-val">0</span>
+</div>
+<span id="sig-detail">等待首次扫描...</span>
+<span id="last-scan-time"></span>
+</div>
+
+<div id="chart-wrap">
+<div id="chart-toolbar">
+<span>K线</span>
+<button class="tf-btn active" onclick="switchTF('1m',this)">1分</button>
+<button class="tf-btn" onclick="switchTF('5m',this)">5分</button>
+<button class="tf-btn" onclick="switchTF('15m',this)">15分</button>
+<button class="tf-btn" onclick="switchTF('1h',this)">1小时</button>
+<button class="tf-btn" onclick="switchTF('1d',this)">日线</button>
+<span id="chart-loading">加载中...</span>
+<span style="margin-left:auto;font-size:10px;color:#4a5568">滚轮缩放 · 拖拽平移</span>
+</div>
+<canvas id="price-chart"></canvas>
+</div>
+
+<div id="position-card">
+<div class="pos-header">
+持仓中
+<span id="pos-dir-badge" class="pos-dir">--</span>
+<span id="trail-active" style="display:none">移动止损</span>
+<span id="breakeven-badge">🔒 保本</span>
+<span id="pos-duration">--</span>
+</div>
+<div class="pos-details">
+<div><div class="pi-label">入场价</div><div class="pi-value" id="pos-entry">--</div></div>
+<div><div class="pi-label">止损价</div><div class="pi-value" id="pos-sl" style="color:#fc8181">--</div></div>
+<div><div class="pi-label">止盈价</div><div class="pi-value" id="pos-tp" style="color:#68d391">--</div></div>
+<div><div class="pi-label">浮动盈亏</div><div class="pi-value" id="pos-pnl">--</div></div>
+<div><div class="pi-label">持仓张数</div><div class="pi-value val-blue" id="pos-contracts">--</div></div>
+</div>
+<div id="manual-panel">
+<div class="mp-title">🎮 手动控制</div>
+<div class="btn-group-4">
+<button class="mp-btn btn-red" onclick="manualClose(1)">⚡ 全平</button>
+<button class="mp-btn btn-yellow" onclick="manualClose(0.75)">平 75%</button>
+<button class="mp-btn btn-yellow" onclick="manualClose(0.5)">平 50%</button>
+<button class="mp-btn btn-yellow" onclick="manualClose(0.25)">平 25%</button>
+</div>
+<div class="mp-input-row"><label>止盈价</label><input type="number" id="input-tp" placeholder="新止盈价"><button style="background:#1a2d1a;color:#68d391;border:1px solid #38a169;border-radius:5px" onclick="updateTP()">确认</button></div>
+<div class="mp-input-row"><label>止损价</label><input type="number" id="input-sl" placeholder="新止损价"><button style="background:#2d1515;color:#fc8181;border:1px solid #e53e3e;border-radius:5px" onclick="updateSL()">确认</button></div>
+</div>
+</div>
+
+<div id="bottom-area">
+<div class="tab-bar">
+<button class="tab-btn active" onclick="switchTab('log')">📋 运行日志</button>
+<button class="tab-btn" onclick="switchTab('history')">📊 交易记录</button>
+</div>
+<div id="tab-log" class="tab-content active">
+<div class="log-toolbar">
+<span>日志</span>
+<button class="filter-btn active" onclick="setLogFilter('all',this)">全部</button>
+<button class="filter-btn" onclick="setLogFilter('scan',this)">信号</button>
+<button class="filter-btn" onclick="setLogFilter('trade',this)">开平仓</button>
+<button class="filter-btn" onclick="setLogFilter('error',this)">错误</button>
+<button class="small-btn" onclick="clearLog()">清空</button>
+</div>
+<div id="log-box"></div>
+</div>
+<div id="tab-history" class="tab-content">
+<div id="hist-top">
+<div id="hist-summary">
+<div class="hs-card"><div class="hs-label">总交易</div><div class="hs-val val-neutral" id="hs-total">0</div></div>
+<div class="hs-card"><div class="hs-label">盈利</div><div class="hs-val val-green" id="hs-wins">0</div></div>
+<div class="hs-card"><div class="hs-label">亏损</div><div class="hs-val val-red" id="hs-losses">0</div></div>
+<div class="hs-card"><div class="hs-label">胜率</div><div class="hs-val val-neutral" id="hs-wr">--%</div></div>
+<div class="hs-card"><div class="hs-label">累计盈亏(U)</div><div class="hs-val val-neutral" id="hs-pnl">0.00</div></div>
+</div>
+<div class="hist-btn-group">
+<button class="small-btn" onclick="exportCSV()">⬇ 导出CSV</button>
+<button class="small-btn" onclick="clearHistory()">🗑 清空</button>
+</div>
+</div>
+<div id="pnl-chart-wrap"><div id="pnl-chart-label">📈 累计盈亏曲线</div><canvas id="pnl-chart"></canvas></div>
+<div id="hist-table-wrap">
+<table id="hist-table">
+<thead><tr><th>时间</th><th>方向</th><th>原因</th><th>入场价</th><th>出场价</th><th>张数</th><th>盈亏%</th><th>盈亏(U)</th></tr></thead>
+<tbody id="hist-tbody"></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const { ipcRenderer } = require("electron");
+
+let botRunning=false,nextScanTimer=null,nextScanSec=900;
+let botStartTime=null,runtimeTimer=null;
+let posOpenTime=null,posTimer=null;
+let logFilter="all",leftCollapsed=false;
+let prevPrice=null,priceFlashTimer=null;
+let chartTF="1m",chartData=[],chartView={offset:0,bars:120},chartDrag=null,livePrice=null;
+const PAD_L=8,PAD_R=72,PAD_T=8,PAD_B=22;
+const DEFAULTS={capital:500,takePct:3,stopPct:1.5,leverage:5,posRatio:20,maxLoss:15,maxTradesPerDay:5,reduceAfterLosses:3};
+
+function toggleLeft(){leftCollapsed=!leftCollapsed;document.getElementById("left-panel").classList.toggle("collapsed",leftCollapsed);document.getElementById("left-toggle").textContent=leftCollapsed?"▶":"◀";}
+function switchTab(name){document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.getAttribute("onclick").includes("'"+name+"'")));document.querySelectorAll(".tab-content").forEach(el=>el.classList.toggle("active",el.id==="tab-"+name));}
+
+const AudioCtx=window.AudioContext||window.webkitAudioContext;let _actx=null;
+function getACtx(){if(!_actx)_actx=new AudioCtx();return _actx;}
+function beep(type){try{const ctx=getACtx(),osc=ctx.createOscillator(),g=ctx.createGain();osc.connect(g);g.connect(ctx.destination);const t=ctx.currentTime;if(type==="open"){osc.type="sine";osc.frequency.setValueAtTime(880,t);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);osc.start(t);osc.stop(t+.3);}if(type==="win"){osc.type="sine";osc.frequency.setValueAtTime(660,t);osc.frequency.setValueAtTime(880,t+.12);osc.frequency.setValueAtTime(1100,t+.24);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.001,t+.45);osc.start(t);osc.stop(t+.45);}if(type==="loss"){osc.type="sawtooth";osc.frequency.setValueAtTime(440,t);osc.frequency.setValueAtTime(300,t+.2);g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.5);osc.start(t);osc.stop(t+.5);}}catch(e){}}
+function notify(title,body){try{if(Notification.permission==="granted")new Notification(title,{body});else if(Notification.permission!=="denied")Notification.requestPermission().then(p=>{if(p==="granted")new Notification(title,{body});});}catch(e){}}
+function startRuntime(){botStartTime=Date.now();document.getElementById("runtime-display").style.display="";if(runtimeTimer)clearInterval(runtimeTimer);runtimeTimer=setInterval(()=>{const s=Math.floor((Date.now()-botStartTime)/1000);document.getElementById("runtime-val").textContent=[Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(v=>String(v).padStart(2,"0")).join(":");},1000);}
+function stopRuntime(){if(runtimeTimer){clearInterval(runtimeTimer);runtimeTimer=null;}document.getElementById("runtime-display").style.display="none";botStartTime=null;}
+function startPosDuration(t){posOpenTime=t||Date.now();if(posTimer)clearInterval(posTimer);posTimer=setInterval(updatePosDuration,15000);updatePosDuration();}
+function updatePosDuration(){if(!posOpenTime)return;const s=Math.floor((Date.now()-posOpenTime)/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60);document.getElementById("pos-duration").textContent="持仓 "+(h>0?`${h}h ${m}m`:`${m}m`);}
+function stopPosDuration(){if(posTimer){clearInterval(posTimer);posTimer=null;}posOpenTime=null;}
+
+function switchTF(tf,btn){chartTF=tf;document.querySelectorAll(".tf-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");chartData=[];chartView.offset=0;loadChartKlines(tf);}
+async function loadChartKlines(tf){
+const loading=document.getElementById("chart-loading");loading.style.display="inline";
+try{const bars=tf==="1d"?365:tf==="1h"?500:300;const data=await ipcRenderer.invoke("chart:loadKlines",{interval:tf,bars});chartData=data||[];chartView.bars=tf==="1d"?120:tf==="1h"?150:200;chartView.offset=0;drawChart();}
+catch(e){appendLog("error","图表加载失败: "+e.message);}finally{loading.style.display="none";}
+}
+function getVisibleData(){const total=chartData.length;if(total===0)return[];const end=total-chartView.offset;const start=Math.max(0,end-chartView.bars);return chartData.slice(start,end);}
+
+function drawChart(){
+const canvas=document.getElementById("price-chart");if(!canvas)return;
+const W=canvas.parentElement.clientWidth||600,H=150;canvas.width=W;canvas.height=H;
+const ctx=canvas.getContext("2d");ctx.clearRect(0,0,W,H);
+const vis=getVisibleData();
+if(vis.length===0){ctx.fillStyle="#4a5568";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("等待数据...",W/2,H/2);return;}
+const dispData=vis.map(c=>({...c}));
+if(livePrice&&chartTF==="1m"&&chartView.offset===0&&dispData.length>0){const last=dispData[dispData.length-1];last.close=livePrice;last.high=Math.max(last.high,livePrice);last.low=Math.min(last.low,livePrice);}
+const plotW=W-PAD_L-PAD_R,plotH=H-PAD_T-PAD_B,n=dispData.length;
+const prices=dispData.flatMap(c=>[c.high,c.low]);
+const mn=Math.min(...prices),mx=Math.max(...prices),range=mx-mn||1;
+const toX=i=>PAD_L+(i+0.5)*(plotW/n);
+const toY=p=>PAD_T+(1-(p-mn)/range)*plotH;
+const barW=Math.max(1,plotW/n*0.7);
+
+ctx.strokeStyle="#1e2235";ctx.lineWidth=1;
+[0.25,0.5,0.75].forEach(r=>{const y=PAD_T+r*plotH;ctx.beginPath();ctx.moveTo(PAD_L,y);ctx.lineTo(W-PAD_R,y);ctx.stroke();});
+
+dispData.forEach((c,i)=>{
+const x=toX(i),isUp=c.close>=c.open,col=isUp?"#68d391":"#fc8181";
+const yO=toY(c.open),yC=toY(c.close),yH=toY(c.high),yL=toY(c.low);
+ctx.strokeStyle=col;ctx.lineWidth=1;
+ctx.beginPath();ctx.moveTo(x,yH);ctx.lineTo(x,yL);ctx.stroke();
+ctx.fillStyle=col;ctx.fillRect(x-barW/2,Math.min(yO,yC),barW,Math.max(1,Math.abs(yO-yC)));
+});
+
+if(document.getElementById("position-card").style.display!=="none"){
+const posLines=[
+{id:"pos-entry", color:"#63b3ed", label:"入场", dash:[4,4]},
+{id:"pos-sl", color:"#fc8181", label:"止损", dash:[3,3]},
+{id:"pos-tp", color:"#68d391", label:"止盈", dash:[3,3]},
+];
+posLines.forEach(({id,color,label,dash})=>{
+const v=parseFloat(document.getElementById(id)?.textContent);
+if(isNaN(v))return;
+const y=toY(v);
+const yClamp=Math.max(PAD_T+2,Math.min(H-PAD_B-2,y));
+ctx.strokeStyle=color+"aa";ctx.lineWidth=1.5;ctx.setLineDash(dash);
+ctx.beginPath();ctx.moveTo(PAD_L,yClamp);ctx.lineTo(W-PAD_R,yClamp);ctx.stroke();
+ctx.setLineDash([]);
+ctx.font="bold 10px Consolas,monospace";ctx.textAlign="left";
+ctx.fillStyle=color;
+ctx.fillText(v.toLocaleString(),W-PAD_R+8,yClamp+4);
+ctx.font="bold 10px sans-serif";
+const lw=ctx.measureText(label).width+8;
+ctx.fillStyle=color+"33";
+ctx.fillRect(PAD_L,yClamp-13,lw,14);
+ctx.fillStyle=color;ctx.textAlign="left";
+ctx.fillText(label,PAD_L+4,yClamp-2);
+});
+}
+
+const curP=dispData[n-1].close;
+const ticks=[{p:mx,color:"#68d391"},{p:curP,color:"#f7931a"},{p:mn,color:"#fc8181"}];
+const shown=[];ctx.font="bold 10px Consolas,monospace";ctx.textAlign="left";
+ticks.forEach(t=>{
+const y=toY(t.p);
+if(shown.every(s=>Math.abs(toY(s.p)-y)>13)){
+shown.push(t);
+ctx.strokeStyle=t.color+"55";ctx.lineWidth=1;ctx.setLineDash([2,3]);
+ctx.beginPath();ctx.moveTo(W-PAD_R,y);ctx.lineTo(W-PAD_R+5,y);ctx.stroke();
+ctx.setLineDash([]);ctx.fillStyle=t.color;
+ctx.fillText(t.p.toLocaleString(),W-PAD_R+8,y+4);
+}
+});
+
+ctx.fillStyle="#4a5568";ctx.font="10px sans-serif";ctx.textAlign="center";
+const step=Math.max(1,Math.floor(n/6));
+dispData.forEach((c,i)=>{
+if(i%step===0){
+const x=toX(i),d=new Date((c.time+8*3600)*1000);
+let label;
+if(chartTF==="1d")label=`${d.getUTCMonth()+1}/${d.getUTCDate()}`;
+else if(chartTF==="1h")label=`${d.getUTCHours()}:00`;
+else label=`${String(d.getUTCHours()).padStart(2,"0")}:${String(d.getUTCMinutes()).padStart(2,"0")}`;
+ctx.fillText(label,x,H-5);
+}
+});
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+const cv=document.getElementById("price-chart");if(!cv)return;
+cv.addEventListener("wheel",e=>{e.preventDefault();const delta=e.deltaY>0?1:-1;chartView.bars=Math.max(20,Math.min(chartData.length,chartView.bars+delta*5));drawChart();},{passive:false});
+cv.addEventListener("mousedown",e=>{chartDrag={x:e.clientX,offset:chartView.offset};});
+window.addEventListener("mousemove",e=>{if(!chartDrag)return;const dx=e.clientX-chartDrag.x,W=cv.clientWidth-PAD_L-PAD_R,pixPerBar=W/chartView.bars,barDelta=Math.round(-dx/pixPerBar);chartView.offset=Math.max(0,Math.min(chartData.length-chartView.bars,chartDrag.offset+barDelta));drawChart();showTooltip(e,getVisibleData());});
+window.addEventListener("mouseup",()=>{chartDrag=null;});
+cv.addEventListener("mousemove",e=>{showTooltip(e,getVisibleData());});
+cv.addEventListener("mouseleave",()=>{document.getElementById("chart-tooltip").style.display="none";});
+});
+function showTooltip(e,vis){
+const cv=document.getElementById("price-chart");if(!vis.length)return;
+const rect=cv.getBoundingClientRect(),mx=e.clientX-rect.left-PAD_L,plotW=cv.width-PAD_L-PAD_R;
+const idx=Math.floor(mx/(plotW/vis.length));if(idx<0||idx>=vis.length){document.getElementById("chart-tooltip").style.display="none";return;}
+const c=vis[idx],d=new Date((c.time+8*3600)*1000),dt=d.toISOString().replace("T"," ").slice(0,16);
+const tip=document.getElementById("chart-tooltip"),isUp=c.close>=c.open;
+tip.innerHTML=`<span style="color:#718096">${dt}</span> <span style="color:#a0aec0">开</span><b style="color:${isUp?"#68d391":"#fc8181"}">${c.open.toLocaleString()}</b> <span style="color:#a0aec0">高</span><b style="color:#68d391">${c.high.toLocaleString()}</b> <span style="color:#a0aec0">低</span><b style="color:#fc8181">${c.low.toLocaleString()}</b> <span style="color:#a0aec0">收</span><b style="color:#f7931a">${c.close.toLocaleString()}</b>`;
+tip.style.display="block";tip.style.left=(e.clientX+12)+"px";tip.style.top=(e.clientY-28)+"px";
+}
+function updateLiveChart(price){
+livePrice=price;
+if(chartTF==="1m"&&chartView.offset===0){
+const now=Math.floor(Date.now()/60000)*60;
+if(chartData.length>0&&chartData[chartData.length-1].time===now){const last=chartData[chartData.length-1];last.close=price;last.high=Math.max(last.high,price);last.low=Math.min(last.low,price);}
+else if(chartData.length>0){chartData.push({time:now,open:price,high:price,low:price,close:price});if(chartData.length>1000)chartData.shift();}
+drawChart();
+}
+}
+function flashPrice(isUp){const el=document.getElementById("price-display");if(priceFlashTimer)clearTimeout(priceFlashTimer);el.classList.remove("up","down");el.classList.add(isUp?"up":"down");priceFlashTimer=setTimeout(()=>el.classList.remove("up","down"),350);}
+function updateScoreBar(score){const wrap=document.getElementById("score-bar-wrap");if(score==null){wrap.style.display="none";return;}wrap.style.display="flex";document.getElementById("score-val").textContent=score;const fg=document.getElementById("score-bar-fg");fg.style.width=score+"%";fg.style.background=score>=70?"#68d391":score>=50?"#f7931a":"#fc8181";}
+function setLogFilter(f,btn){logFilter=f;document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.getElementById("log-box").querySelectorAll("div[data-cat]").forEach(el=>{const c=el.dataset.cat;const show=f==="all"||(f==="scan"&&c==="scan")||(f==="trade"&&(c==="open"||c==="win"||c==="loss"))||(f==="error"&&(c==="error"||c==="warn"));el.classList.toggle("log-hidden",!show);});}
+
+function toggleBot(){if(!botRunning)startBot();else stopBot();}
+function startBot(){const cfg=getConfig();if(!cfg.dryRun&&!cfg.apiKey){appendLog("error","❌ 请填写 API Key 和 Secret！");return;}ipcRenderer.send("bot:start",cfg);}
+function stopBot(){ipcRenderer.send("bot:stop");}
+function getConfig(){return{apiKey:document.getElementById("apiKey").value.trim(),apiSecret:document.getElementById("apiSecret").value.trim(),dryRun:document.getElementById("dryRun").checked,capital:parseFloat(document.getElementById("capital").value)||500,takePct:parseFloat(document.getElementById("takePctNum").value),stopPct:parseFloat(document.getElementById("stopPctNum").value),leverage:parseInt(document.getElementById("leverageNum").value),posRatio:parseInt(document.getElementById("posRatioNum").value),maxLoss:parseInt(document.getElementById("maxLossNum").value),maxTradesPerDay:parseInt(document.getElementById("maxTradesPerDayNum").value),reduceAfterLosses:parseInt(document.getElementById("reduceAfterLossesNum").value)};}
+
+ipcRenderer.on("bot:started",()=>{
+botRunning=true;const cfg=getConfig();
+document.getElementById("btn-start").textContent="■ 停止机器人";document.getElementById("btn-start").className="stop";
+const pill=document.getElementById("status-pill");pill.textContent=cfg.dryRun?"● 模拟运行中":"● 运行中";pill.className="status-pill "+(cfg.dryRun?"pill-dry":"pill-running");
+startCountdown();startRuntime();
+loadChartKlines(chartTF);
+appendLog("info",`▶ 机器人已启动 ${cfg.dryRun?"【模拟模式】":"【真实交易"]"}`);
+});
+function handleBotStopped(){botRunning=false;document.getElementById("btn-start").textContent="▶ 启动机器人";document.getElementById("btn-start").className="start";document.getElementById("status-pill").textContent="● 未运行";document.getElementById("status-pill").className="status-pill pill-stopped";if(nextScanTimer)clearInterval(nextScanTimer);document.getElementById("s-next").textContent="--";stopRuntime();appendLog("info","■ 机器人已停止");}
+ipcRenderer.on("bot:stopped",handleBotStopped);
+ipcRenderer.on("trade:error",(_,msg)=>appendLog("error","操作失败: "+msg));
+ipcRenderer.on("history:updated",(_,rec)=>renderHistory(rec));
+ipcRenderer.on("history:exported",(_,p)=>appendLog("win","✅ CSV 已导出: "+p));
+
+ipcRenderer.on("bot:event",(_,ev)=>{
+const{type,data}=ev;
+if(type==="log"){
+appendLog(data.level,`[${data.ts}] ${data.msg}`);
+if(data.level==="scan"||data.level==="open")resetCountdown();
+if(data.msg&&data.msg.includes("冷却期")){
+const cb=document.getElementById("cool-badge");
+if(data.msg.includes("启动")){cb.style.display="";cb.textContent="⏸ 冷却30min";}
+else if(data.msg.includes("跳过")){const m=data.msg.match(/剩余约(\d+)分钟/);if(m)cb.textContent=`⏸ 冷却${m[1]}min`;}
+}
+}
+if(type==="conn"){const b=document.getElementById("conn-badge");b.textContent=data.ok?"● API 正常":"⚠ API 断线";b.className=data.ok?"conn-ok":"conn-err";}
+if(type==="price"){const p=data.price;document.getElementById("price-display").innerHTML=`${Number(p).toLocaleString()} <span>USDT</span>`;if(prevPrice!==null)flashPrice(p>=prevPrice);prevPrice=p;updateLiveChart(p);}
+if(type==="balance"){document.getElementById("s-balance").textContent=data.balance.toFixed(2)+" U";if(!document.getElementById("dryRun").checked){document.getElementById("capital").value=data.balance.toFixed(0);updateMath();}const diff=data.balance-data.start,el=document.getElementById("s-pnl");el.textContent=(diff>=0?"+":"")+diff.toFixed(2)+" U";el.className="svalue "+(diff>=0?"val-green":"val-red");}
+if(type==="signal"){
+const sig=data.sig,cn=sig==="LONG"?"📈 做多":sig==="SHORT"?"📉 做空":"⏸ 观望";
+const badge=document.getElementById("sig-badge");badge.textContent=cn;badge.className="sig-badge sig-"+sig.toLowerCase();
+const scoreStr=data.score!=null&&sig!=="HOLD"?" / "+data.score:"";
+document.getElementById("s-signal").textContent=cn+scoreStr;document.getElementById("s-signal").className="svalue "+(sig==="LONG"?"val-green":sig==="SHORT"?"val-red":"val-neutral");
+const mtf=document.getElementById("mtf-badge");
+const t1h=data.trend1h||data.trend4h||"?";
+if(sig!=="HOLD"&&data.mtfOk!=null){mtf.style.display="";mtf.textContent=data.mtfOk?`✅ 1h→${t1h}`:`⚠ 1h→${t1h}`;mtf.className="mtf-badge "+(data.mtfOk?"mtf-ok":"mtf-warn");}else mtf.style.display="none";
+if(sig!=="HOLD"&&data.mtfOk)document.getElementById("cool-badge").style.display="none";
+updateScoreBar(sig!=="HOLD"?data.score:null);
+document.getElementById("sig-detail").textContent=`RSI:${data.rsi.toFixed(1)} EMA9:${Math.round(data.ef)} BB↑${Math.round(data.bbUp)} BB↓${Math.round(data.bbLo)}`;
+document.getElementById("last-scan-time").textContent="扫描 "+new Date(Date.now()+8*3600*1000).toISOString().replace("T"," ").slice(11,19);
+}
+if(type==="position"){
+const card=document.getElementById("position-card"),mp=document.getElementById("manual-panel");
+if(!data){card.style.display="none";mp.style.display="none";stopPosDuration();document.getElementById("trail-active").style.display="none";document.getElementById("breakeven-badge").style.display="none";drawChart();}
+else{
+card.style.display="block";mp.style.display="block";
+const badge=document.getElementById("pos-dir-badge");badge.textContent=data.dir==="LONG"?"📈 做多":"📉 做空";badge.className="pos-dir "+(data.dir==="LONG"?"dir-long":"dir-short");
+document.getElementById("pos-entry").textContent=data.entry.toFixed(2);
+document.getElementById("pos-sl").textContent=data.sl;
+document.getElementById("pos-tp").textContent=data.tp;
+document.getElementById("pos-contracts").textContent=data.contracts||"--";
+const pnlEl=document.getElementById("pos-pnl");pnlEl.textContent=(data.pPct>=0?"+":"")+data.pPct+"%";pnlEl.style.color=data.pPct>=0?"#68d391":"#fc8181";
+document.getElementById("breakeven-badge").style.display=data._movedToBreakeven?"":"none";
+document.getElementById("trail-active").style.display=(getConfig().trailPct>0)?"":"none";
+if(!posOpenTime)startPosDuration(data.time);
+drawChart();
+}
+}
+if(type==="trade"){if(data.result==="open")beep("open");if(data.result==="win"){beep("win");notify("✅ 止盈！",`${data.dir} +${data.pPct}% (+${data.pnl}U)`);}if(data.result==="loss"){beep("loss");notify("❌ 止损！",`${data.dir} ${data.pPct}% (${data.pnl}U)`);}}
+if(type==="stopped")handleBotStopped();
+});
+
+function renderHistory(records){
+const closed=records.filter(r=>r.result!=="open"),wins=closed.filter(r=>r.result==="win").length,losses=closed.filter(r=>r.result==="loss").length,total=closed.length,totalPnl=closed.reduce((s,r)=>s+(r.pnl||0),0),wr=total>0?(wins/total*100).toFixed(1):"--";
+document.getElementById("hs-total").textContent=total;document.getElementById("hs-wins").textContent=wins;document.getElementById("hs-losses").textContent=losses;document.getElementById("hs-wr").textContent=wr+"%";document.getElementById("s-winrate").textContent=wr+"%";
+const pe=document.getElementById("hs-pnl");pe.textContent=(totalPnl>=0?"+":"")+totalPnl.toFixed(2);pe.className="hs-val "+(totalPnl>=0?"val-green":"val-red");
+const tbody=document.getElementById("hist-tbody");tbody.innerHTML="";
+for(const r of records){const dt=new Date(r.time+8*3600*1000).toISOString().replace("T"," ").slice(0,19),dc=r.dir==="LONG"?"td-long":"td-short",rc=r.result==="win"?"td-win":r.result==="loss"?"td-loss":"td-open",ps=r.pnl!=null?(r.pnl>=0?"+":"")+r.pnl.toFixed(2):"--",pc=r.pPct!=null?(r.pPct>=0?"+":"")+r.pPct+"%":"--";tbody.innerHTML+=`<tr><td style="color:#718096">${dt}</td><td class="${dc}">${r.dir}</td><td class="${rc}">${r.reason}</td><td>${r.entry.toFixed(2)}</td><td>${r.exit!=null?r.exit.toFixed(2):"--"}</td><td>${r.contracts}</td><td class="${rc}">${pc}</td><td class="${rc}">${ps}</td></tr>`;}
+drawPnlChart(records);
+}
+function drawPnlChart(records){
+const canvas=document.getElementById("pnl-chart");if(!canvas)return;
+const W=canvas.parentElement.clientWidth-20,H=46;canvas.width=W;canvas.height=H;
+const ctx=canvas.getContext("2d");ctx.clearRect(0,0,W,H);
+const closed=records.filter(r=>r.result!=="open"&&r.pnl!=null);
+if(closed.length<2){ctx.fillStyle="#4a5568";ctx.font="11px sans-serif";ctx.fillText("暂无足够数据",8,H/2+5);return;}
+let cum=0;const pts=[0,...closed.map(r=>{cum+=r.pnl;return cum;})];
+const mn=Math.min(...pts),mx=Math.max(...pts),range=mx-mn||1,pad=4;
+const toX=i=>(i/(pts.length-1))*W,toY=v=>H-pad-((v-mn)/range)*(H-pad*2);
+ctx.strokeStyle="#2d374866";ctx.lineWidth=1;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(0,toY(0));ctx.lineTo(W,toY(0));ctx.stroke();ctx.setLineDash([]);
+const fin=pts[pts.length-1];ctx.strokeStyle=fin>=0?"#68d391":"#fc8181";ctx.lineWidth=1.5;
+ctx.beginPath();pts.forEach((v,i)=>i===0?ctx.moveTo(toX(i),toY(v)):ctx.lineTo(toX(i),toY(v)));ctx.stroke();
+ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();
+const fg=ctx.createLinearGradient(0,0,0,H);fg.addColorStop(0,fin>=0?"#68d39133":"#fc818133");fg.addColorStop(1,"#00000000");ctx.fillStyle=fg;ctx.fill();
+}
+
+function exportCSV(){ipcRenderer.send("history:exportCSV");}
+function clearHistory(){if(!confirm("确认清空所有交易记录？"))return;ipcRenderer.send("history:clear");appendLog("warn","🗑 记录已清空");}
+function manualClose(r){if(!confirm(`确认平仓 ${r*100}%？`))return;ipcRenderer.send("trade:partialClose",r);appendLog("warn",`手动平仓 ${r*100}%`);}
+function updateTP(){const v=parseFloat(document.getElementById("input-tp").value);if(isNaN(v)||v<=0){alert("请输入有效止盈价格");return;}ipcRenderer.send("trade:setTP",v);document.getElementById("pos-tp").textContent=v;document.getElementById("input-tp").value="";appendLog("open",`止盈→${v}`);drawChart();}
+function updateSL(){const v=parseFloat(document.getElementById("input-sl").value);if(isNaN(v)||v<=0){alert("请输入有效止损价格");return;}ipcRenderer.send("trade:setSL",v);document.getElementById("pos-sl").textContent=v;document.getElementById("input-sl").value="";appendLog("open",`止损→${v}`);drawChart();}
+function syncInput(rid,nid){document.getElementById(nid).value=document.getElementById(rid).value;}
+function syncRange(nid,rid){const v=parseFloat(document.getElementById(nid).value),r=document.getElementById(rid);if(!isNaN(v))r.value=Math.min(Math.max(v,parseFloat(r.min)),parseFloat(r.max));}
+function startCountdown(){nextScanSec=900;if(nextScanTimer)clearInterval(nextScanTimer);nextScanTimer=setInterval(()=>{nextScanSec--;if(nextScanSec<=0)nextScanSec=900;const m=Math.floor(nextScanSec/60),s=nextScanSec%60;document.getElementById("s-next").textContent=`${m}:${String(s).padStart(2,"0")}`;},1000);}
+function resetCountdown(){nextScanSec=900;}
+function appendLog(level,msg){
+const box=document.getElementById("log-box"),line=document.createElement("div");
+const cat=(level==="win"||level==="loss"||level==="open")?level:level==="scan"?"scan":(level==="error"||level==="warn")?level:"info";
+line.dataset.cat=cat;line.className="log-"+level;line.textContent=msg;
+const show=logFilter==="all"||(logFilter==="scan"&&cat==="scan")||(logFilter==="trade"&&(cat==="open"||cat==="win"||cat==="loss"))||(logFilter==="error"&&(cat==="error"||cat==="warn"));
+if(!show)line.classList.add("log-hidden");
+box.appendChild(line);box.scrollTop=box.scrollHeight;
+while(box.children.length>600)box.removeChild(box.firstChild);
+}
+function clearLog(){document.getElementById("log-box").innerHTML="";}
+function saveConfig(){ipcRenderer.send("config:save",{...getConfig(),apiSecret:""});appendLog("info","💾 配置已保存");}
+function resetDefaults(){
+if(!confirm(`确认恢复默认参数？\n止盈${DEFAULTS.takePct}% / 止损${DEFAULTS.stopPct}% / 杠杆${DEFAULTS.leverage}x / 仓位${DEFAULTS.posRatio}% / 风控${DEFAULTS.maxLoss}% / 每日${DEFAULTS.maxTradesPerDay}次 / 连亏${DEFAULTS.reduceAfterLosses}次减仓`))return;
+document.getElementById("capital").value=DEFAULTS.capital;
+["takePct","stopPct","leverage","posRatio","maxLoss","maxTradesPerDay","reduceAfterLosses"].forEach(id=>{
+document.getElementById(id).value=DEFAULTS[id];
+document.getElementById(id+"Num").value=DEFAULTS[id];
+});
+updateMath();
+appendLog("info",`↺ 参数已恢复默认: 止盈${DEFAULTS.takePct}% 止损${DEFAULTS.stopPct}% 杠杆${DEFAULTS.leverage}x 仓位${DEFAULTS.posRatio}% 风控${DEFAULTS.maxLoss}% 每日${DEFAULTS.maxTradesPerDay}次 连亏${DEFAULTS.reduceAfterLosses}次减仓`);
+}
+function onDryRunToggle(){const d=document.getElementById("dryRun").checked,i=document.getElementById("capital"),h=document.getElementById("capital-hint");i.disabled=!d;i.style.opacity=d?"1":"0.4";i.style.color=d?"#e2e8f0":"#718096";h.textContent=d?"":"← 自动从API读取";}
+function updateMath(){
+const cap=parseFloat(document.getElementById("capital").value)||500,
+tp=parseFloat(document.getElementById("takePct").value),
+sp=parseFloat(document.getElementById("stopPct").value),
+lev=parseInt(document.getElementById("leverage").value),
+posR=parseInt(document.getElementById("posRatio").value)/100,sz=cap*posR;
+const winU=(sz*lev*tp/100).toFixed(2),lossU=(sz*lev*sp/100).toFixed(2),
+feeU=(sz*lev*0.0007*2).toFixed(2),
+minWR=((parseFloat(lossU)+parseFloat(feeU))/(parseFloat(winU)+parseFloat(lossU))*100).toFixed(1);
+const avgPer=(parseFloat(winU)*0.5-parseFloat(lossU)*0.5-parseFloat(feeU)).toFixed(2);
+const monthly=(avgPer*30).toFixed(1);
+document.getElementById("math-info").innerHTML=
+`名义: <b style="color:#f7931a">${(sz*lev).toFixed(0)} U</b> 比例: <b style="color:#a0aec0">${(posR*100).toFixed(0)}%</b>\n盈 <b style="color:#68d391">+${winU}U</b> 亏 <b style="color:#fc8181">-${lossU}U</b> 手续费~${feeU}U\n盈亏比 1:${(tp/sp).toFixed(1)} <b>最低胜率 &gt;${minWR}%</b>\n月均预期(50%胜率×30次): <b style="color:${parseFloat(monthly)>=0?"#68d391":"#fc8181"}">${parseFloat(monthly)>=0?"+":""}${monthly}U</b>`;
+}
+
+window.addEventListener("resize",drawChart);
+if(typeof Notification!=="undefined"&&Notification.permission==="default")Notification.requestPermission();
+
+ipcRenderer.on("config:loaded",(_,cfg)=>{
+if(!cfg)return;
+if(cfg.apiKey)document.getElementById("apiKey").value=cfg.apiKey;
+document.getElementById("capital").value=cfg.capital||500;
+["takePct","stopPct","leverage","posRatio","maxLoss","maxTradesPerDay","reduceAfterLosses"].forEach(id=>{if(cfg[id]!=null){document.getElementById(id).value=cfg[id];document.getElementById(id+"Num").value=cfg[id];}});
+document.getElementById("dryRun").checked=cfg.dryRun!==false;
+onDryRunToggle();updateMath();
+});
+
+let _pricePoller=null;
+async function startPricePoller(){
+if(_pricePoller)return;
+_pricePoller=setInterval(async()=>{
+if(botRunning)return;
+try{const p=await ipcRenderer.invoke("price:get");if(p){document.getElementById("price-display").innerHTML=`${Number(p).toLocaleString()} <span>USDT</span>`;if(prevPrice!==null)flashPrice(p>=prevPrice);prevPrice=p;updateLiveChart(p);}}catch(e){}
+},2000);
+}
+
+ipcRenderer.send("config:load");
+ipcRenderer.send("history:load");
+updateMath();
+loadChartKlines("1m");
+startPricePoller();
+appendLog("info","v14 就绪 | 策略: 15m信号 + 1h趋势过滤 | 风控: 每日限开仓+连亏减仓");
+appendLog("info","图表: 滚轮缩放 · 拖拽平移 · 悬停OHLC · 持仓线(蓝=入场 绿=止盈 红=止损)");
+</script>
+</body>
+</html>

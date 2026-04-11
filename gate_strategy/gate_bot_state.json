@@ -1,0 +1,11 @@
+{
+  "startBal": 500,
+  "pos": {
+    "dir": "SHORT",
+    "entry": 70000,
+    "sl": 71400,
+    "tp": 67900,
+    "contracts": 71,
+    "time": 1773330998516
+  }
+}
