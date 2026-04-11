@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舞台灯光系统布局设计</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .stage-diagram {
+            background-color: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+        .stage {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(to top, #2c3e50, #34495e);
+            border-top: 3px solid #7f8c8d;
+        }
+        .truss {
+            position: absolute;
+            height: 6px;
+            background-color: #95a5a6;
+            top: 0;
+            width: 100%;
+        }
+        .light {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .par-light {
+            background-color: #e74c3c;
+            box-shadow: 0 0 10px #e74c3c;
+        }
+        .beam-light {
+            background-color: #3498db;
+            box-shadow: 0 0 10px #3498db;
+        }
+        .panel-light {
+            background-color: #f1c40f;
+            box-shadow: 0 0 10px #f1c40f;
+        }
+        .info-box {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        .table-container {
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 15px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>舞台灯光系统布局设计</h1>
+        
+        <div class="info-box">
+            <h3>项目基本信息</h3>
+            <p><strong>舞台尺寸：</strong>宽13米 × 深5米</p>
+            <p><strong>灯杆配置：</strong>4道灯杆，每道长度13.5米，间距1.5米，高度6.5米</p>
+            <p><strong>灯具总数：</strong>100台（60台LED帕灯 + 20台舞台光束灯 + 20台三基色会议平板灯）</p>
+        </div>
+
+        <h2>灯光布局图</h2>
+        <div class="stage-diagram">
+            <div class="truss" style="top: 0;"></div>
+            <div class="truss" style="top: 25%;"></div>
+            <div class="truss" style="top: 50%;"></div>
+            <div class="truss" style="top: 75%;"></div>
+            
+            <!-- 灯杆1 - 左侧 -->
+            <div class="light par-light" style="top: 10%; left: 10%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 30%; left: 10%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 50%; left: 10%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 70%; left: 10%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 90%; left: 10%;" title="LED帕灯">P</div>
+            
+            <div class="light beam-light" style="top: 20%; left: 10%;" title="舞台光束灯">B</div>
+            <div class="light beam-light" style="top: 60%; left: 10%;" title="舞台光束灯">B</div>
+            
+            <div class="light panel-light" style="top: 40%; left: 10%;" title="三基色会议平板灯">C</div>
+            <div class="light panel-light" style="top: 80%; left: 10%;" title="三基色会议平板灯">C</div>
+            
+            <!-- 灯杆2 - 左侧中间 -->
+            <div class="light par-light" style="top: 10%; left: 30%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 30%; left: 30%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 50%; left: 30%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 70%; left: 30%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 90%; left: 30%;" title="LED帕灯">P</div>
+            
+            <div class="light beam-light" style="top: 20%; left: 30%;" title="舞台光束灯">B</div>
+            <div class="light beam-light" style="top: 60%; left: 30%;" title="舞台光束灯">B</div>
+            
+            <div class="light panel-light" style="top: 40%; left: 30%;" title="三基色会议平板灯">C</div>
+            <div class="light panel-light" style="top: 80%; left: 30%;" title="三基色会议平板灯">C</div>
+            
+            <!-- 灯杆3 - 右侧中间 -->
+            <div class="light par-light" style="top: 10%; left: 50%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 30%; left: 50%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 50%; left: 50%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 70%; left: 50%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 90%; left: 50%;" title="LED帕灯">P</div>
+            
+            <div class="light beam-light" style="top: 20%; left: 50%;" title="舞台光束灯">B</div>
+            <div class="light beam-light" style="top: 60%; left: 50%;" title="舞台光束灯">B</div>
+            
+            <div class="light panel-light" style="top: 40%; left: 50%;" title="三基色会议平板灯">C</div>
+            <div class="light panel-light" style="top: 80%; left: 50%;" title="三基色会议平板灯">C</div>
+            
+            <!-- 灯杆4 - 右侧 -->
+            <div class="light par-light" style="top: 10%; left: 70%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 30%; left: 70%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 50%; left: 70%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 70%; left: 70%;" title="LED帕灯">P</div>
+            <div class="light par-light" style="top: 90%; left: 70%;" title="LED帕灯">P</div>
+            
+            <div class="light beam-light" style="top: 20%; left: 70%;" title="舞台光束灯">B</div>
+            <div class="light beam-light" style="top: 60%; left: 70%;" title="舞台光束灯">B</div>
+            
+            <div class="light panel-light" style="top: 40%; left: 70%;" title="三基色会议平板灯">C</div>
+            <div class="light panel-light" style="top: 80%; left: 70%;" title="三基色会议平板灯">C</div>
+            
+            <div class="stage"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <span>LED帕灯 (60台)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #3498db;"></div>
+                <span>舞台光束灯 (20台)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f1c40f;"></div>
+                <span>三基色会议平板灯 (20台)</span>
+            </div>
+        </div>
+
+        <h2>详细布局说明</h2>
+        
+        <div class="info-box">
+            <h3>1. LED帕灯 (60台)</h3>
+            <p><strong>分布位置：</strong>每道灯杆安装15台，均匀分布</p>
+            <p><strong>安装间距：</strong>约0.9米（13.5米/15台）</p>
+            <p><strong>功能：</strong>提供基础照明，营造舞台氛围，适用于演出和会议</p>
+            <p><strong>特点：</strong>光束角大，照射范围广，色彩丰富</p>
+        </div>
+
+        <div class="info-box">
+            <h3>2. 舞台光束灯 (20台)</h3>
+            <p><strong>分布位置：</strong>每道灯杆安装5台，间隔分布</p>
+            <p><strong>安装间距：</strong>约2.7米（13.5米/5台）</p>
+            <p><strong>功能：</strong>创造动态光束效果，突出表演者，适用于演出</p>
+            <p><strong>特点：</strong>光束集中，可形成强烈视觉效果</p>
+        </div>
+
+        <div class="info-box">
+            <h3>3. 三基色会议平板灯 (20台)</h3>
+            <p><strong>分布位置：</strong>每道灯杆安装5台，间隔分布</p>
+            <p><strong>安装间距：</strong>约2.7米（13.5米/5台）</p>
+            <p><strong>功能：</strong>提供均匀柔和的照明，避免眩光，适用于会议</p>
+            <p><strong>特点：</strong>光质柔和，色彩还原好，适合长时间使用</p>
+        </div>
+
+        <h2>灯具分配表</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>灯杆编号</th>
+                        <th>LED帕灯</th>
+                        <th>舞台光束灯</th>
+                        <th>三基色会议平板灯</th>
+                        <th>总计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>灯杆1 (左侧)</td>
+                        <td>15台</td>
+                        <td>5台</td>
+                        <td>5台</td>
+                        <td>25台</td>
+                    </tr>
+                    <tr>
+                        <td>灯杆2 (左侧中间)</td>
+                        <td>15台</td>
+                        <td>5台</td>
+                        <td>5台</td>
+                        <td>25台</td>
+                    </tr>
+                    <tr>
+                        <td>灯杆3 (右侧中间)</td>
+                        <td>15台</td>
+                        <td>5台</td>
+                        <td>5台</td>
+                        <td>25台</td>
+                    </tr>
+                    <tr>
+                        <td>灯杆4 (右侧)</td>
+                        <td>15台</td>
+                        <td>5台</td>
+                        <td>5台</td>
+                        <td>25台</td>
+                    </tr>
+                    <tr>
+                        <td><strong>总计</strong></td>
+                        <td><strong>60台</strong></td>
+                        <td><strong>20台</strong></td>
+                        <td><strong>20台</strong></td>
+                        <td><strong>100台</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="info-box">
+            <h3>4. 灯具间距设计</h3>
+            <p><strong>灯杆间距：</strong>1.5米（固定）</p>
+            <p><strong>LED帕灯间距：</strong>约0.9米</p>
+            <p><strong>舞台光束灯间距：</strong>约2.7米</p>
+            <p><strong>三基色会议平板灯间距：</strong>约2.7米</p>
+            <p><strong>垂直分布：</strong>灯具在灯杆上均匀分布，确保舞台各区域获得均匀照明</p>
+        </div>
+
+        <div class="info-box">
+            <h3>5. 使用建议</h3>
+            <p><strong>演出模式：</strong>主要使用LED帕灯和舞台光束灯，营造舞台氛围和动态效果</p>
+            <p><strong>会议模式：</strong>主要使用三基色会议平板灯，提供均匀柔和的照明，避免眩光</p>
+            <p><strong>混合模式：</strong>可根据需要组合使用，满足不同场景需求</p>
+        </div>
+
+        <div class="info-box">
+            <h3>6. 安装注意事项</h3>
+            <p>• 确保所有灯具牢固安装，符合安全标准</p>
+            <p>• 灯具电源线路应分开布置，避免干扰</p>
+            <p>• 定期检查灯具和线路，确保安全运行</p>
+            <p>• 根据实际使用情况调整灯具角度，优化照明效果</p>
+        </div>
+    </div>
+</body>
+</html>

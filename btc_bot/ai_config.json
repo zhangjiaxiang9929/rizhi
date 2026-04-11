@@ -1,0 +1,8 @@
+{
+  "aiApiKey": "sk-c8ltKB9BbxxMteuEr0xja9N6O3uD68ykmTggXEcEPMsulvM2",
+  "aiEndpoint": "api2.openclawcn.net",
+  "aiModel": "qwen3-max-2026-01-23阿里云特价",
+  "chatApiKey": "sk-c8ltKB9BbxxMteuEr0xja9N6O3uD68ykmTggXEcEPMsulvM2",
+  "chatEndpoint": "api2.openclawcn.net",
+  "chatModel": "火山DeepSeek-V3.2特价"
+}
